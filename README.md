@@ -34,3 +34,13 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Project Progress Log (hour by hour, Pacific Time)
+
+- **2026-01-14 21:30–22:30** — Initial import from prior travel planner, baseline Next.js app scaffold in place.
+- **2026-01-14 22:30–23:00** — Wired Prisma/database basics; added trip/location creation; integrated Google Maps display.
+- **2026-01-14 23:00–23:15** — Added segment support with start/end, notes, and times; improved globe page client load flow.
+- **2026-01-14 23:15–23:30** — Enabled segment naming and image upload; built trip edit page with image upload.
+- **2026-01-14 23:30–23:45** — Tweaked upload settings (anonymous uploads for testing, larger image limit).
+- **2026-01-14 23:45–23:59** — Refined itinerary UI and usability.
+- **2026-01-15 00:00–00:10** — Edit segments end-to-end working; ready to add reservations next.
