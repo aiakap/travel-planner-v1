@@ -9,8 +9,8 @@ export default async function ChatPage() {
     redirect("/");
   }
 
-  // Create a new conversation and redirect to it
-  const conversation = await createConversation("New Chat");
+  // Create a new conversation and redirect to it (skip revalidation since we're redirecting)
+  const conversation = await createConversation("New Chat", false);
   redirect(`/chat/${conversation.id}`);
 }
 

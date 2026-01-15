@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-export async function createConversation(title?: string) {
+export async function createConversation(title?: string, shouldRevalidate = true) {
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -18,7 +18,9 @@ export async function createConversation(title?: string) {
     },
   });
 
-  revalidatePath("/chat");
+  if (shouldRevalidate) {
+    revalidatePath("/chat");
+  }
   return conversation;
 }
 
