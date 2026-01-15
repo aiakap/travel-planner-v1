@@ -1,4 +1,11 @@
-import { Segment } from "@/app/generated/prisma";
+import {
+  Segment,
+  SegmentType,
+  Reservation,
+  ReservationType,
+  ReservationCategory,
+  ReservationStatus,
+} from "@/app/generated/prisma";
 import { reorderItinerary } from "@/lib/actions/reorder-itineraty";
 import { DndContext, closestCenter, DragEndEvent } from "@dnd-kit/core";
 import {
@@ -12,9 +19,18 @@ import { useId, useState } from "react";
 import { formatDateTimeInTimeZone } from "@/lib/utils";
 import Link from "next/link";
 import { Button } from "./ui/button";
+import { Plane, Hotel, UtensilsCrossed, Ticket, MapPin } from "lucide-react";
+
+type ReservationWithRelations = Reservation & {
+  reservationType: ReservationType & { category: ReservationCategory };
+  reservationStatus: ReservationStatus;
+};
 
 interface SortableItineraryProps {
-  segments: Segment[];
+  segments: (Segment & {
+    segmentType: SegmentType;
+    reservations: ReservationWithRelations[];
+  })[];
   tripId: string;
   segmentTimeZones: Record<
     string,
@@ -27,12 +43,30 @@ interface SortableItineraryProps {
   >;
 }
 
+function getCategoryIcon(categoryName: string) {
+  switch (categoryName.toLowerCase()) {
+    case "travel":
+      return <Plane className="h-3 w-3" />;
+    case "stay":
+      return <Hotel className="h-3 w-3" />;
+    case "activity":
+      return <Ticket className="h-3 w-3" />;
+    case "dining":
+      return <UtensilsCrossed className="h-3 w-3" />;
+    default:
+      return <MapPin className="h-3 w-3" />;
+  }
+}
+
 function SortableItem({
   item,
   timeZoneInfo,
   tripId,
 }: {
-  item: Segment;
+  item: Segment & {
+    segmentType: SegmentType;
+    reservations: ReservationWithRelations[];
+  };
   timeZoneInfo?: {
     startTimeZoneId?: string;
     startTimeZoneName?: string;
@@ -56,6 +90,9 @@ function SortableItem({
         <h4 className="font-medium text-gray-800">
           {item.name || `${item.startTitle} → ${item.endTitle}`}
         </h4>
+        <div className="text-sm font-medium text-gray-600">
+          {item.segmentType.name}
+        </div>
         <p className="text-sm text-gray-500">
           Start: {item.startTitle}
           {item.startTime
@@ -82,6 +119,20 @@ function SortableItem({
         </p>
         {item.notes && (
           <p className="text-sm text-gray-500 truncate max-w-xs">{item.notes}</p>
+        )}
+        {item.reservations.length > 0 && (
+          <div className="flex gap-2 mt-2 flex-wrap">
+            {item.reservations.map((res) => (
+              <div
+                key={res.id}
+                className="flex items-center gap-1 text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
+                title={`${res.name} - ${res.reservationStatus.name}`}
+              >
+                {getCategoryIcon(res.reservationType.category.name)}
+                <span className="truncate max-w-[100px]">{res.name}</span>
+              </div>
+            ))}
+          </div>
         )}
       </div>
       <div className="flex items-center gap-3">

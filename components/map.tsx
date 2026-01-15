@@ -1,6 +1,6 @@
 "use client";
 
-import { Segment } from "@/app/generated/prisma";
+import { Segment, SegmentType } from "@/app/generated/prisma";
 import {
   GoogleMap,
   InfoWindow,
@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { formatDateTimeInTimeZone } from "@/lib/utils";
 
 interface MapProps {
-  segments: Segment[];
+  segments: (Segment & { segmentType: SegmentType })[];
   segmentTimeZones: Record<
     string,
     {
@@ -102,6 +102,9 @@ export default function Map({ segments, segmentTimeZones }: MapProps) {
           >
             <div className="text-sm">
               <div className="font-semibold">{segment.name}</div>
+              <div className="text-xs text-gray-500">
+                {segment.segmentType.name}
+              </div>
               <div>Start: {segment.startTitle}</div>
               {segmentTimeZones[segment.id]?.startTimeZoneName && (
                 <div className="text-xs text-gray-500">
@@ -128,6 +131,9 @@ export default function Map({ segments, segmentTimeZones }: MapProps) {
           >
             <div className="text-sm">
               <div className="font-semibold">{segment.name}</div>
+              <div className="text-xs text-gray-500">
+                {segment.segmentType.name}
+              </div>
               <div>End: {segment.endTitle}</div>
               {segmentTimeZones[segment.id]?.endTimeZoneName && (
                 <div className="text-xs text-gray-500">

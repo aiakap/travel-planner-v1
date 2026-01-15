@@ -5,21 +5,25 @@ import { Button } from "./ui/button";
 import { addSegment } from "@/lib/actions/add-location";
 import { UploadButton } from "@/lib/upload-thing";
 import { formatForDateTimeLocal } from "@/lib/utils";
+import { SegmentType } from "@/app/generated/prisma";
 
 export default function NewLocationClient({
   tripId,
   lastEndTime,
   lastEndAddress,
+  segmentTypes,
 }: {
   tripId: string;
   lastEndTime: string | null;
   lastEndAddress: string | null;
+  segmentTypes: SegmentType[];
 }) {
   const [isPending, startTransation] = useTransition();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [startAddress, setStartAddress] = useState("");
+  const [segmentTypeId, setSegmentTypeId] = useState("");
 
   useEffect(() => {
     if (!lastEndTime) {
@@ -44,6 +48,12 @@ export default function NewLocationClient({
     setStartAddress(lastEndAddress);
   }, [lastEndAddress]);
 
+  useEffect(() => {
+    if (segmentTypes.length > 0) {
+      setSegmentTypeId(segmentTypes[0].id);
+    }
+  }, [segmentTypes]);
+
   return (
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md mx-auto">
@@ -60,6 +70,24 @@ export default function NewLocationClient({
               });
             }}
           >
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Segment Type
+              </label>
+              <select
+                name="segmentTypeId"
+                required
+                value={segmentTypeId}
+                onChange={(event) => setSegmentTypeId(event.target.value)}
+                className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {segmentTypes.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.name}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Segment Name

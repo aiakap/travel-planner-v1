@@ -97,8 +97,65 @@ model Segment {
   notes String?
   startTime DateTime?
   endTime DateTime?
+  segmentTypeId String
+  segmentType SegmentType @relation(fields: [segmentTypeId], references: [id])
   trip Trip @relation(fields: [tripId], references: [id])
   tripId String
   order Int @default(0)
+  reservations Reservation[]
   createdAt DateTime @default(now())
+}
+
+model SegmentType {
+  id String @id @default(cuid())
+  name String @unique
+  segments Segment[]
+  createdAt DateTime @default(now())
+}
+
+model ReservationCategory {
+  id String @id @default(cuid())
+  name String @unique
+  types ReservationType[]
+  createdAt DateTime @default(now())
+}
+
+model ReservationType {
+  id String @id @default(cuid())
+  name String
+  categoryId String
+  category ReservationCategory @relation(fields: [categoryId], references: [id])
+  reservations Reservation[]
+  createdAt DateTime @default(now())
+
+  @@unique([categoryId, name])
+}
+
+model ReservationStatus {
+  id String @id @default(cuid())
+  name String @unique
+  reservations Reservation[]
+  createdAt DateTime @default(now())
+}
+
+model Reservation {
+  id String @id @default(cuid())
+  name String
+  confirmationNumber String?
+  notes String?
+  reservationTypeId String
+  reservationType ReservationType @relation(fields: [reservationTypeId], references: [id])
+  reservationStatusId String
+  reservationStatus ReservationStatus @relation(fields: [reservationStatusId], references: [id])
+  segmentId String
+  segment Segment @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+  startTime DateTime?
+  endTime DateTime?
+  cost Float?
+  currency String?
+  location String?
+  url String?
+  imageUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

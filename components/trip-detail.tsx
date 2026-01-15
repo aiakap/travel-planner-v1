@@ -1,8 +1,25 @@
 "use client";
 
-import { Segment, Trip } from "@/app/generated/prisma";
+import {
+  Segment,
+  SegmentType,
+  Trip,
+  Reservation,
+  ReservationType,
+  ReservationCategory,
+  ReservationStatus,
+} from "@/app/generated/prisma";
 import Image from "next/image";
-import { Calendar, MapPin, Plus, Pencil } from "lucide-react";
+import {
+  Calendar,
+  MapPin,
+  Plus,
+  Pencil,
+  Plane,
+  Hotel,
+  UtensilsCrossed,
+  Ticket,
+} from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
@@ -11,8 +28,16 @@ import Map from "@/components/map";
 import SortableItinerary from "./sortable-itinerary";
 import { formatDateTimeInTimeZone } from "@/lib/utils";
 
+type ReservationWithRelations = Reservation & {
+  reservationType: ReservationType & { category: ReservationCategory };
+  reservationStatus: ReservationStatus;
+};
+
 export type TripWithSegments = Trip & {
-  segments: Segment[];
+  segments: (Segment & {
+    segmentType: SegmentType;
+    reservations: ReservationWithRelations[];
+  })[];
 };
 
 interface TripDetailClientProps {
@@ -26,6 +51,38 @@ interface TripDetailClientProps {
       endTimeZoneName?: string;
     }
   >;
+}
+
+function getCategoryIcon(categoryName: string) {
+  switch (categoryName.toLowerCase()) {
+    case "travel":
+      return <Plane className="h-4 w-4" />;
+    case "stay":
+      return <Hotel className="h-4 w-4" />;
+    case "activity":
+      return <Ticket className="h-4 w-4" />;
+    case "dining":
+      return <UtensilsCrossed className="h-4 w-4" />;
+    default:
+      return <MapPin className="h-4 w-4" />;
+  }
+}
+
+function getStatusBadgeColor(statusName: string) {
+  switch (statusName.toLowerCase()) {
+    case "confirmed":
+      return "bg-green-100 text-green-800";
+    case "pending":
+      return "bg-yellow-100 text-yellow-800";
+    case "cancelled":
+      return "bg-red-100 text-red-800";
+    case "completed":
+      return "bg-blue-100 text-blue-800";
+    case "waitlisted":
+      return "bg-gray-100 text-gray-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
 }
 
 export default function TripDetailClient({
@@ -138,6 +195,9 @@ export default function TripDetailClient({
                                 {segment.name ||
                                   `${segment.startTitle} → ${segment.endTitle}`}
                               </div>
+                              <div className="text-sm font-medium text-gray-600">
+                                {segment.segmentType.name}
+                              </div>
                               <p className="text-sm text-gray-500">
                                 Start: {segment.startTitle}
                                 {segment.startTime
@@ -167,11 +227,72 @@ export default function TripDetailClient({
                                   {segment.notes}
                                 </p>
                               )}
-                              <div className="mt-3">
+                              
+                              {segment.reservations.length > 0 && (
+                                <div className="mt-4 space-y-2">
+                                  <h4 className="text-sm font-semibold text-gray-700">
+                                    Reservations ({segment.reservations.length})
+                                  </h4>
+                                  <div className="space-y-2">
+                                    {segment.reservations.map((reservation) => (
+                                      <div
+                                        key={reservation.id}
+                                        className="flex items-start gap-2 p-2 bg-gray-50 rounded border border-gray-200"
+                                      >
+                                        <div className="flex-shrink-0 mt-1">
+                                          {getCategoryIcon(
+                                            reservation.reservationType.category.name
+                                          )}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                          <div className="flex items-start justify-between gap-2">
+                                            <div className="flex-1">
+                                              <div className="font-medium text-sm text-gray-900">
+                                                {reservation.name}
+                                              </div>
+                                              <div className="text-xs text-gray-600">
+                                                {reservation.reservationType.name}
+                                              </div>
+                                              {reservation.confirmationNumber && (
+                                                <div className="text-xs text-gray-500">
+                                                  Conf: {reservation.confirmationNumber}
+                                                </div>
+                                              )}
+                                            </div>
+                                            <span
+                                              className={`text-xs px-2 py-1 rounded ${getStatusBadgeColor(
+                                                reservation.reservationStatus.name
+                                              )}`}
+                                            >
+                                              {reservation.reservationStatus.name}
+                                            </span>
+                                          </div>
+                                          <Link
+                                            href={`/trips/${trip.id}/segments/${segment.id}/reservations/${reservation.id}/edit`}
+                                            className="text-xs text-blue-600 hover:underline mt-1 inline-block"
+                                          >
+                                            Edit
+                                          </Link>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              <div className="mt-3 flex gap-2">
                                 <Link
                                   href={`/trips/${trip.id}/segments/${segment.id}/edit`}
                                 >
                                   <Button variant="outline">Edit Segment</Button>
+                                </Link>
+                                <Link
+                                  href={`/trips/${trip.id}/segments/${segment.id}/reservations/new`}
+                                >
+                                  <Button variant="outline">
+                                    <Plus className="h-4 w-4 mr-1" />
+                                    Add Reservation
+                                  </Button>
                                 </Link>
                               </div>
                             </>

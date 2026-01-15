@@ -39,9 +39,12 @@ export async function updateSegment(segmentId: string, formData: FormData) {
   const startTimeStr = formData.get("startTime")?.toString();
   const endTimeStr = formData.get("endTime")?.toString();
   const imageUrl = formData.get("imageUrl")?.toString();
+  const segmentTypeId = formData.get("segmentTypeId")?.toString();
 
-  if (!name || !startAddress || !endAddress) {
-    throw new Error("Name, start address, and end address are required");
+  if (!name || !startAddress || !endAddress || !segmentTypeId) {
+    throw new Error(
+      "Name, start address, end address, and segment type are required"
+    );
   }
 
   const segment = await prisma.segment.findFirst({
@@ -72,6 +75,7 @@ export async function updateSegment(segmentId: string, formData: FormData) {
       startTime: startTimeStr ? new Date(startTimeStr) : null,
       endTime: endTimeStr ? new Date(endTimeStr) : null,
       imageUrl: imageUrl || null,
+      segmentTypeId,
     },
   });
 

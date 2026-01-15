@@ -22,10 +22,14 @@ export default async function EditSegmentPage({
     return <div>Segment not found.</div>;
   }
 
+  const segmentTypes = await prisma.segmentType.findMany({
+    orderBy: { name: "asc" },
+  });
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
       <h1 className="text-3xl font-bold">Edit Segment</h1>
-      <EditSegmentForm segment={segment} />
+      <EditSegmentForm segment={segment} segmentTypes={segmentTypes} />
     </div>
   );
 }

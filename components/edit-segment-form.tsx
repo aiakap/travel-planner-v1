@@ -1,6 +1,6 @@
 "use client";
 
-import { Segment } from "@/app/generated/prisma";
+import { Segment, SegmentType } from "@/app/generated/prisma";
 import { updateSegment } from "@/lib/actions/update-segment";
 import { UploadButton } from "@/lib/upload-thing";
 import { formatForDateTimeLocal } from "@/lib/utils";
@@ -8,10 +8,19 @@ import Image from "next/image";
 import { useState, useTransition } from "react";
 import { Button } from "./ui/button";
 
-export default function EditSegmentForm({ segment }: { segment: Segment }) {
+export default function EditSegmentForm({
+  segment,
+  segmentTypes,
+}: {
+  segment: Segment;
+  segmentTypes: SegmentType[];
+}) {
   const [isPending, startTransition] = useTransition();
   const [imageUrl, setImageUrl] = useState<string | null>(
     segment.imageUrl ?? null
+  );
+  const [segmentTypeId, setSegmentTypeId] = useState<string>(
+    segment.segmentTypeId ?? ""
   );
 
   const startTimeValue = segment.startTime
@@ -33,6 +42,24 @@ export default function EditSegmentForm({ segment }: { segment: Segment }) {
         });
       }}
     >
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Segment Type
+        </label>
+        <select
+          name="segmentTypeId"
+          required
+          value={segmentTypeId}
+          onChange={(event) => setSegmentTypeId(event.target.value)}
+          className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          {segmentTypes.map((type) => (
+            <option key={type.id} value={type.id}>
+              {type.name}
+            </option>
+          ))}
+        </select>
+      </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Segment Name

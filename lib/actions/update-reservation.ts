@@ -1,0 +1,77 @@
+"use server";
+
+import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+
+export async function updateReservation(formData: FormData) {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const reservationId = formData.get("reservationId")?.toString();
+  const name = formData.get("name")?.toString();
+  const reservationTypeId = formData.get("reservationTypeId")?.toString();
+  const reservationStatusId = formData.get("reservationStatusId")?.toString();
+  const confirmationNumber = formData.get("confirmationNumber")?.toString();
+  const notes = formData.get("notes")?.toString();
+  const startTime = formData.get("startTime")?.toString();
+  const endTime = formData.get("endTime")?.toString();
+  const cost = formData.get("cost")?.toString();
+  const currency = formData.get("currency")?.toString();
+  const location = formData.get("location")?.toString();
+  const url = formData.get("url")?.toString();
+  const imageUrl = formData.get("imageUrl")?.toString();
+
+  if (!reservationId || !name || !reservationTypeId || !reservationStatusId) {
+    throw new Error("Missing required fields");
+  }
+
+  // Verify reservation belongs to user via segment -> trip
+  const existingReservation = await prisma.reservation.findFirst({
+    where: {
+      id: reservationId,
+      segment: {
+        trip: {
+          userId: session.user.id,
+        },
+      },
+    },
+    include: {
+      segment: {
+        include: {
+          trip: true,
+        },
+      },
+    },
+  });
+
+  if (!existingReservation) {
+    throw new Error("Reservation not found or unauthorized");
+  }
+
+  await prisma.reservation.update({
+    where: { id: reservationId },
+    data: {
+      name,
+      confirmationNumber: confirmationNumber || null,
+      notes: notes || null,
+      reservationTypeId,
+      reservationStatusId,
+      startTime: startTime ? new Date(startTime) : null,
+      endTime: endTime ? new Date(endTime) : null,
+      cost: cost ? parseFloat(cost) : null,
+      currency: currency || null,
+      location: location || null,
+      url: url || null,
+      imageUrl: imageUrl || null,
+    },
+  });
+
+  revalidatePath(`/trips/${existingReservation.segment.trip.id}`);
+  redirect(`/trips/${existingReservation.segment.trip.id}`);
+}
+

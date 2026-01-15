@@ -51,7 +51,27 @@ export default async function TripDetail({
 
   const trip = await prisma.trip.findFirst({
     where: { id: tripId, userId: session.user?.id },
-    include: { segments: { orderBy: { order: "asc" } } },
+    include: {
+      segments: {
+        orderBy: { order: "asc" },
+        include: {
+          segmentType: true,
+          reservations: {
+            include: {
+              reservationType: {
+                include: {
+                  category: true,
+                },
+              },
+              reservationStatus: true,
+            },
+            orderBy: {
+              startTime: "asc",
+            },
+          },
+        },
+      },
+    },
   });
 
   console.log(trip);
