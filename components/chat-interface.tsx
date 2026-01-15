@@ -3,8 +3,9 @@
 import { useChat } from "@ai-sdk/react";
 import { UIMessage } from "ai";
 import { Button } from "@/components/ui/button";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { generateGetLuckyPrompt } from "@/lib/ai/get-lucky-prompts";
 
 interface ChatInterfaceProps {
   conversationId: string;
@@ -47,6 +48,13 @@ export default function ChatInterface({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Handle "Get Lucky" button click
+  const handleGetLucky = () => {
+    if (isLoading) return;
+    const luckyPrompt = generateGetLuckyPrompt();
+    sendMessage({ text: luckyPrompt });
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-12rem)]">
       {/* Messages Container */}
@@ -56,8 +64,21 @@ export default function ChatInterface({
             <p className="text-lg font-medium mb-2">
               👋 Hi! I&apos;m your AI travel planning assistant
             </p>
-            <p className="text-sm">
+            <p className="text-sm mb-6">
               Tell me about your dream trip and I&apos;ll help you plan it!
+            </p>
+            
+            {/* Get Lucky Button - prominent when no messages */}
+            <Button
+              onClick={handleGetLucky}
+              disabled={isLoading}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+            >
+              <Sparkles className="h-5 w-5 mr-2" />
+              Get Lucky ✨
+            </Button>
+            <p className="text-xs text-gray-400 mt-3">
+              Generate a random dream trip with a complete itinerary!
             </p>
           </div>
         )}
@@ -125,6 +146,18 @@ export default function ChatInterface({
           }}
           className="flex gap-2"
         >
+          {/* Get Lucky button (compact version) */}
+          <Button
+            type="button"
+            onClick={handleGetLucky}
+            disabled={isLoading}
+            variant="outline"
+            className="border-purple-300 text-purple-600 hover:bg-purple-50 hover:border-purple-400"
+            title="Generate a random dream trip!"
+          >
+            <Sparkles className="h-4 w-4" />
+          </Button>
+          
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
