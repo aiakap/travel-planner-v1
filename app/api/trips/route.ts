@@ -10,16 +10,16 @@ export async function GET() {
       return new NextResponse("Not authenticated", { status: 401 });
     }
 
-    const locations = await prisma.location.findMany({
+    const segments = await prisma.segment.findMany({
       where: {
         trip: {
           userId: session.user?.id,
         },
       },
       select: {
-        locationTitle: true,
-        lat: true,
-        lng: true,
+        startTitle: true,
+        startLat: true,
+        startLng: true,
         trip: {
           select: {
             title: true,
@@ -29,13 +29,16 @@ export async function GET() {
     });
 
     const transformedLocations = await Promise.all(
-      locations.map(async (loc) => {
-        const geocodeResult = await getCountryFromCoordinates(loc.lat, loc.lng);
+      segments.map(async (seg) => {
+        const geocodeResult = await getCountryFromCoordinates(
+          seg.startLat,
+          seg.startLng
+        );
 
         return {
-          name: `${loc.trip.title} - ${geocodeResult.formattedAddress}`,
-          lat: loc.lat,
-          lng: loc.lng,
+          name: `${seg.trip.title} - ${seg.startTitle}`,
+          lat: seg.startLat,
+          lng: seg.startLng,
           country: geocodeResult.country,
         };
       })

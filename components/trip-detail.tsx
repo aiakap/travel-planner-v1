@@ -1,6 +1,6 @@
 "use client";
 
-import { Location, Trip } from "@/app/generated/prisma";
+import { Segment, Trip } from "@/app/generated/prisma";
 import Image from "next/image";
 import { Calendar, MapPin, Plus } from "lucide-react";
 import Link from "next/link";
@@ -10,12 +10,12 @@ import { useState } from "react";
 import Map from "@/components/map";
 import SortableItinerary from "./sortable-itinerary";
 
-export type TripWithLocation = Trip & {
-  locations: Location[];
+export type TripWithSegments = Trip & {
+  segments: Segment[];
 };
 
 interface TripDetailClientProps {
-  trip: TripWithLocation;
+  trip: TripWithSegments;
 }
 
 export default function TripDetailClient({ trip }: TripDetailClientProps) {
@@ -23,10 +23,8 @@ export default function TripDetailClient({ trip }: TripDetailClientProps) {
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
-      {" "}
       {trip.imageUrl && (
         <div className="w-full h-72 md:h-96 overflow-hidden rounded-xl shadow-lg relative">
-          {" "}
           <Image
             src={trip.imageUrl}
             alt={trip.title}
@@ -38,10 +36,7 @@ export default function TripDetailClient({ trip }: TripDetailClientProps) {
       )}
       <div className="bg-white p-6 shadow rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center">
         <div>
-          <h1 className="text-4xl font-extrabold text-gray-900">
-            {" "}
-            {trip.title}
-          </h1>
+          <h1 className="text-4xl font-extrabold text-gray-900">{trip.title}</h1>
 
           <div className="flex items-center text-gray-500 mt-2">
             <Calendar className="h-5 w-5 mr-2" />
@@ -54,8 +49,7 @@ export default function TripDetailClient({ trip }: TripDetailClientProps) {
         <div className="mt-4 md:mt-0">
           <Link href={`/trips/${trip.id}/itinerary/new`}>
             <Button>
-              {" "}
-              <Plus className="mr-2 h-5 w-5" /> Add Location
+              <Plus className="mr-2 h-5 w-5" /> Add Segment
             </Button>
           </Link>
         </div>
@@ -67,7 +61,7 @@ export default function TripDetailClient({ trip }: TripDetailClientProps) {
               Overview
             </TabsTrigger>
             <TabsTrigger value="itinerary" className="text-lg">
-              Itinerary
+              Segments
             </TabsTrigger>
             <TabsTrigger value="map" className="text-lg">
               Map
@@ -77,12 +71,12 @@ export default function TripDetailClient({ trip }: TripDetailClientProps) {
           <TabsContent value="overview" className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <h2 className="text-2xl font-semibold mb-4"> Trip Summary</h2>
+                <h2 className="text-2xl font-semibold mb-4">Trip Summary</h2>
                 <div className="space-y-4">
                   <div className="flex items-start">
                     <Calendar className="h-6 w-6 mr-3 text-gray-500" />
                     <div>
-                      <p className="font-medium text-gray-700"> Dates</p>
+                      <p className="font-medium text-gray-700">Dates</p>
                       <p className="text-sm text-gray-500">
                         {trip.startDate.toLocaleDateString()} -{" "}
                         {trip.endDate.toLocaleDateString()}
@@ -97,26 +91,24 @@ export default function TripDetailClient({ trip }: TripDetailClientProps) {
                   <div className="flex items-start">
                     <MapPin className="h-6 w-6 mr-3 text-gray-500" />
                     <div>
-                      <p> Destinations</p>
+                      <p>Segments</p>
                       <p>
-                        {" "}
-                        {trip.locations.length}{" "}
-                        {trip.locations.length === 1 ? "location" : "locations"}
+                        {trip.segments.length}{" "}
+                        {trip.segments.length === 1 ? "segment" : "segments"}
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
               <div className="h-72 rounded-lg overflow-hidden shadow">
-                <Map itineraries={trip.locations} />
+                <Map segments={trip.segments} />
               </div>
-              {trip.locations.length === 0 && (
+              {trip.segments.length === 0 && (
                 <div className="text-center p-4">
-                  <p>Add locations to see them on the map.</p>
+                  <p>Add segments to see them on the map.</p>
                   <Link href={`/trips/${trip.id}/itinerary/new`}>
                     <Button>
-                      {" "}
-                      <Plus className="mr-2 h-5 w-5" /> Add Location
+                      <Plus className="mr-2 h-5 w-5" /> Add Segment
                     </Button>
                   </Link>
                 </div>
@@ -132,35 +124,33 @@ export default function TripDetailClient({ trip }: TripDetailClientProps) {
 
           <TabsContent value="itinerary" className="space-y-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold"> Full Itinerary</h2>
+              <h2 className="text-2xl font-semibold">Segments</h2>
             </div>
 
-            {trip.locations.length === 0 ? (
+            {trip.segments.length === 0 ? (
               <div className="text-center p-4">
-                <p>Add locations to see them on the itinerary.</p>
+                <p>Add segments to see them on the itinerary.</p>
                 <Link href={`/trips/${trip.id}/itinerary/new`}>
                   <Button>
-                    {" "}
-                    <Plus className="mr-2 h-5 w-5" /> Add Location
+                    <Plus className="mr-2 h-5 w-5" /> Add Segment
                   </Button>
                 </Link>
               </div>
             ) : (
-              <SortableItinerary locations={trip.locations} tripId={trip.id} />
+              <SortableItinerary segments={trip.segments} tripId={trip.id} />
             )}
           </TabsContent>
 
           <TabsContent value="map" className="space-y-6">
             <div className="h-72 rounded-lg overflow-hidden shadow">
-              <Map itineraries={trip.locations} />
+              <Map segments={trip.segments} />
             </div>
-            {trip.locations.length === 0 && (
+            {trip.segments.length === 0 && (
               <div className="text-center p-4">
-                <p>Add locations to see them on the map.</p>
+                <p>Add segments to see them on the map.</p>
                 <Link href={`/trips/${trip.id}/itinerary/new`}>
                   <Button>
-                    {" "}
-                    <Plus className="mr-2 h-5 w-5" /> Add Location
+                    <Plus className="mr-2 h-5 w-5" /> Add Segment
                   </Button>
                 </Link>
               </div>

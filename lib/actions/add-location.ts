@@ -23,31 +23,45 @@ async function geocodeAddress(address: string) {
   }
 
   const { lat, lng } = firstResult.geometry.location;
-  return { lat, lng };
+  return { lat, lng, formatted: firstResult.formatted_address ?? address };
 }
 
-export async function addLocation(formData: FormData, tripId: string) {
+export async function addSegment(formData: FormData, tripId: string) {
   const session = await auth();
   if (!session) {
     throw new Error("Not authenticated");
   }
 
-  const address = formData.get("address")?.toString();
-  if (!address) {
-    throw new Error("Missing address");
+  const startAddress = formData.get("startAddress")?.toString();
+  const endAddress = formData.get("endAddress")?.toString();
+  const notes = formData.get("notes")?.toString();
+  const startTimeStr = formData.get("startTime")?.toString();
+  const endTimeStr = formData.get("endTime")?.toString();
+
+  if (!startAddress || !endAddress) {
+    throw new Error("Start and end addresses are required");
   }
 
-  const { lat, lng } = await geocodeAddress(address);
+  const [startGeo, endGeo] = await Promise.all([
+    geocodeAddress(startAddress),
+    geocodeAddress(endAddress),
+  ]);
 
-  const count = await prisma.location.count({
+  const count = await prisma.segment.count({
     where: { tripId },
   });
 
-  await prisma.location.create({
+  await prisma.segment.create({
     data: {
-      locationTitle: address,
-      lat,
-      lng,
+      startTitle: startGeo.formatted,
+      startLat: startGeo.lat,
+      startLng: startGeo.lng,
+      endTitle: endGeo.formatted,
+      endLat: endGeo.lat,
+      endLng: endGeo.lng,
+      notes: notes || null,
+      startTime: startTimeStr ? new Date(startTimeStr) : null,
+      endTime: endTimeStr ? new Date(endTimeStr) : null,
       tripId,
       order: count,
     },

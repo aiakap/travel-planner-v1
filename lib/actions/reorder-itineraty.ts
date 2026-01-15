@@ -10,9 +10,9 @@ export async function reorderItinerary(tripId: string, newOrder: string[]) {
   }
 
   await prisma.$transaction(
-    newOrder.map((locationId: string, key: number) =>
-      prisma.location.update({
-        where: { id: locationId },
+    newOrder.map((segmentId: string, key: number) =>
+      prisma.segment.update({
+        where: { id: segmentId },
         data: { order: key },
       })
     )
