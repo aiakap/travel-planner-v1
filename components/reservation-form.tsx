@@ -278,8 +278,8 @@ export default function ReservationForm({
         <UploadButton
           endpoint="imageUploader"
           onClientUploadComplete={(res) => {
-            if (res && res[0].url) {
-              setImageUrl(res[0].url);
+            if (res && res[0].ufsUrl) {
+              setImageUrl(res[0].ufsUrl);
             }
           }}
           onUploadError={(error: Error) => {
