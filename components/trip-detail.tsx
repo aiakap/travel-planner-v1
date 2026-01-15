@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { useState } from "react";
 import Map from "@/components/map";
 import SortableItinerary from "./sortable-itinerary";
+import { formatDateTimeInTimeZone } from "@/lib/utils";
 
 export type TripWithSegments = Trip & {
   segments: Segment[];
@@ -16,9 +17,21 @@ export type TripWithSegments = Trip & {
 
 interface TripDetailClientProps {
   trip: TripWithSegments;
+  segmentTimeZones: Record<
+    string,
+    {
+      startTimeZoneId?: string;
+      startTimeZoneName?: string;
+      endTimeZoneId?: string;
+      endTimeZoneName?: string;
+    }
+  >;
 }
 
-export default function TripDetailClient({ trip }: TripDetailClientProps) {
+export default function TripDetailClient({
+  trip,
+  segmentTimeZones,
+}: TripDetailClientProps) {
   const [activeTab, setActiveTab] = useState("overview");
 
   return (
@@ -106,8 +119,62 @@ export default function TripDetailClient({ trip }: TripDetailClientProps) {
                 </div>
               </div>
               <div className="h-72 rounded-lg overflow-hidden shadow">
-                <Map segments={trip.segments} />
+                <Map segments={trip.segments} segmentTimeZones={segmentTimeZones} />
               </div>
+              {trip.segments.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold">Segments</h3>
+                  <div className="space-y-3">
+                    {trip.segments.map((segment) => (
+                      <div
+                        key={segment.id}
+                        className="p-4 border rounded-md bg-white"
+                      >
+                        {(() => {
+                          const tz = segmentTimeZones[segment.id];
+                          return (
+                            <>
+                              <div className="font-medium text-gray-800">
+                                {segment.name ||
+                                  `${segment.startTitle} → ${segment.endTitle}`}
+                              </div>
+                              <p className="text-sm text-gray-500">
+                                Start: {segment.startTitle}
+                                {segment.startTime
+                                  ? ` • ${formatDateTimeInTimeZone(
+                                      new Date(segment.startTime),
+                                      tz?.startTimeZoneId
+                                    )}`
+                                  : " • No start time"}
+                                {tz?.startTimeZoneName
+                                  ? ` • ${tz.startTimeZoneName}`
+                                  : ""}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                End: {segment.endTitle}
+                                {segment.endTime
+                                  ? ` • ${formatDateTimeInTimeZone(
+                                      new Date(segment.endTime),
+                                      tz?.endTimeZoneId
+                                    )}`
+                                  : " • No end time"}
+                                {tz?.endTimeZoneName
+                                  ? ` • ${tz.endTimeZoneName}`
+                                  : ""}
+                              </p>
+                              {segment.notes && (
+                                <p className="text-sm text-gray-500 mt-2">
+                                  {segment.notes}
+                                </p>
+                              )}
+                            </>
+                          );
+                        })()}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               {trip.segments.length === 0 && (
                 <div className="text-center p-4">
                   <p>Add segments to see them on the map.</p>
@@ -142,13 +209,17 @@ export default function TripDetailClient({ trip }: TripDetailClientProps) {
                 </Link>
               </div>
             ) : (
-              <SortableItinerary segments={trip.segments} tripId={trip.id} />
+              <SortableItinerary
+                segments={trip.segments}
+                tripId={trip.id}
+                segmentTimeZones={segmentTimeZones}
+              />
             )}
           </TabsContent>
 
           <TabsContent value="map" className="space-y-6">
             <div className="h-72 rounded-lg overflow-hidden shadow">
-              <Map segments={trip.segments} />
+              <Map segments={trip.segments} segmentTimeZones={segmentTimeZones} />
             </div>
             {trip.segments.length === 0 && (
               <div className="text-center p-4">

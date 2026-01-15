@@ -1,13 +1,47 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Button } from "./ui/button";
 import { addSegment } from "@/lib/actions/add-location";
 import { UploadButton } from "@/lib/upload-thing";
 
-export default function NewLocationClient({ tripId }: { tripId: string }) {
+function formatForDateTimeLocal(date: Date) {
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return [
+    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+      date.getDate()
+    )}`,
+    `${pad(date.getHours())}:${pad(date.getMinutes())}`,
+  ].join("T");
+}
+
+export default function NewLocationClient({
+  tripId,
+  lastEndTime,
+}: {
+  tripId: string;
+  lastEndTime: string | null;
+}) {
   const [isPending, startTransation] = useTransition();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+
+  useEffect(() => {
+    if (!lastEndTime) {
+      return;
+    }
+
+    const start = new Date(lastEndTime);
+    if (Number.isNaN(start.getTime())) {
+      return;
+    }
+
+    const end = new Date(start);
+    end.setDate(end.getDate() + 7);
+    setStartTime(formatForDateTimeLocal(start));
+    setEndTime(formatForDateTimeLocal(end));
+  }, [lastEndTime]);
 
   return (
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center bg-gray-50">
@@ -63,22 +97,26 @@ export default function NewLocationClient({ tripId }: { tripId: string }) {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Start Time (optional)
                 </label>
-                <input
-                  name="startTime"
-                  type="datetime-local"
-                  className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
+              <input
+                name="startTime"
+                type="datetime-local"
+                value={startTime}
+                onChange={(event) => setStartTime(event.target.value)}
+                className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   End Time (optional)
                 </label>
-                <input
-                  name="endTime"
-                  type="datetime-local"
-                  className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+              <input
+                name="endTime"
+                type="datetime-local"
+                value={endTime}
+                onChange={(event) => setEndTime(event.target.value)}
+                className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

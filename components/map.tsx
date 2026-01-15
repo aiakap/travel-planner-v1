@@ -9,14 +9,24 @@ import {
   useJsApiLoader,
 } from "@react-google-maps/api";
 import { useState } from "react";
+import { formatDateTimeInTimeZone } from "@/lib/utils";
 
 interface MapProps {
   segments: Segment[];
+  segmentTimeZones: Record<
+    string,
+    {
+      startTimeZoneId?: string;
+      startTimeZoneName?: string;
+      endTimeZoneId?: string;
+      endTimeZoneName?: string;
+    }
+  >;
 }
 
 const containerStyle = { width: "100%", height: "100%" };
 
-export default function Map({ segments }: MapProps) {
+export default function Map({ segments, segmentTimeZones }: MapProps) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const [activeMarker, setActiveMarker] = useState<string | null>(null);
 
@@ -74,8 +84,18 @@ export default function Map({ segments }: MapProps) {
             <div className="text-sm">
               <div className="font-semibold">{segment.name}</div>
               <div>Start: {segment.startTitle}</div>
+              {segmentTimeZones[segment.id]?.startTimeZoneName && (
+                <div className="text-xs text-gray-500">
+                  {segmentTimeZones[segment.id]?.startTimeZoneName}
+                </div>
+              )}
               {segment.startTime && (
-                <div>{new Date(segment.startTime).toLocaleString()}</div>
+                <div>
+                  {formatDateTimeInTimeZone(
+                    new Date(segment.startTime),
+                    segmentTimeZones[segment.id]?.startTimeZoneId
+                  )}
+                </div>
               )}
               {segment.notes && <div className="text-xs mt-1">{segment.notes}</div>}
             </div>
@@ -90,8 +110,18 @@ export default function Map({ segments }: MapProps) {
             <div className="text-sm">
               <div className="font-semibold">{segment.name}</div>
               <div>End: {segment.endTitle}</div>
+              {segmentTimeZones[segment.id]?.endTimeZoneName && (
+                <div className="text-xs text-gray-500">
+                  {segmentTimeZones[segment.id]?.endTimeZoneName}
+                </div>
+              )}
               {segment.endTime && (
-                <div>{new Date(segment.endTime).toLocaleString()}</div>
+                <div>
+                  {formatDateTimeInTimeZone(
+                    new Date(segment.endTime),
+                    segmentTimeZones[segment.id]?.endTimeZoneId
+                  )}
+                </div>
               )}
               {segment.notes && <div className="text-xs mt-1">{segment.notes}</div>}
             </div>

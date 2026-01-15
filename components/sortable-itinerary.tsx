@@ -9,13 +9,34 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useId, useState } from "react";
+import { formatDateTimeInTimeZone } from "@/lib/utils";
 
 interface SortableItineraryProps {
   segments: Segment[];
   tripId: string;
+  segmentTimeZones: Record<
+    string,
+    {
+      startTimeZoneId?: string;
+      startTimeZoneName?: string;
+      endTimeZoneId?: string;
+      endTimeZoneName?: string;
+    }
+  >;
 }
 
-function SortableItem({ item }: { item: Segment }) {
+function SortableItem({
+  item,
+  timeZoneInfo,
+}: {
+  item: Segment;
+  timeZoneInfo?: {
+    startTimeZoneId?: string;
+    startTimeZoneName?: string;
+    endTimeZoneId?: string;
+    endTimeZoneName?: string;
+  };
+}) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: item.id });
 
@@ -31,11 +52,29 @@ function SortableItem({ item }: { item: Segment }) {
         <h4 className="font-medium text-gray-800">
           {item.name || `${item.startTitle} → ${item.endTitle}`}
         </h4>
-        <p className="text-sm text-gray-500 truncate max-w-xs">
+        <p className="text-sm text-gray-500">
+          Start: {item.startTitle}
           {item.startTime
-            ? `${new Date(item.startTime).toLocaleString()}`
-            : "No start time"}{" "}
-          {item.endTime ? ` → ${new Date(item.endTime).toLocaleString()}` : ""}
+            ? ` • ${formatDateTimeInTimeZone(
+                new Date(item.startTime),
+                timeZoneInfo?.startTimeZoneId
+              )}`
+            : " • No start time"}
+          {timeZoneInfo?.startTimeZoneName
+            ? ` • ${timeZoneInfo.startTimeZoneName}`
+            : ""}
+        </p>
+        <p className="text-sm text-gray-500">
+          End: {item.endTitle}
+          {item.endTime
+            ? ` • ${formatDateTimeInTimeZone(
+                new Date(item.endTime),
+                timeZoneInfo?.endTimeZoneId
+              )}`
+            : " • No end time"}
+          {timeZoneInfo?.endTimeZoneName
+            ? ` • ${timeZoneInfo.endTimeZoneName}`
+            : ""}
         </p>
         {item.notes && (
           <p className="text-sm text-gray-500 truncate max-w-xs">{item.notes}</p>
@@ -49,6 +88,7 @@ function SortableItem({ item }: { item: Segment }) {
 export default function SortableItinerary({
   segments,
   tripId,
+  segmentTimeZones,
 }: SortableItineraryProps) {
   const id = useId();
   const [localSegments, setLocalSegments] = useState(segments);
@@ -87,7 +127,11 @@ export default function SortableItinerary({
       >
         <div className="space-y-4">
           {localSegments.map((item, key) => (
-            <SortableItem key={key} item={item} />
+            <SortableItem
+              key={key}
+              item={item}
+              timeZoneInfo={segmentTimeZones[item.id]}
+            />
           ))}
         </div>
       </SortableContext>
