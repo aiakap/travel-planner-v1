@@ -42,7 +42,7 @@ export function createTripPlanningTools(userId: string) {
     create_trip: tool({
       description:
         "Create a new trip with title, description, and date range. Returns the trip ID for adding segments.",
-      parameters: z.object({
+      inputSchema: z.object({
         title: z.string().describe("Trip title (e.g., 'Summer in Italy')"),
         description: z
           .string()
@@ -76,221 +76,221 @@ export function createTripPlanningTools(userId: string) {
       },
     }),
 
-  add_segment: tool({
-    description:
-      "Add a segment to a trip. A segment represents a part of the journey (flight, hotel stay, activity period, etc.)",
-    parameters: z.object({
-      tripId: z.string().describe("ID of the trip to add this segment to"),
-      name: z
-        .string()
-        .describe(
-          "Segment name (e.g., 'Flight to Rome', 'Stay in Florence')"
-        ),
-      segmentType: z
-        .enum(["Flight", "Drive", "Train", "Ferry", "Walk", "Other"])
-        .describe("Type of segment/transportation"),
-      startLocation: z
-        .string()
-        .describe("Starting location (city, country format)"),
-      endLocation: z
-        .string()
-        .describe("Ending location (city, country format)"),
-      startTime: z
-        .string()
-        .optional()
-        .describe("Start date/time in ISO format"),
-      endTime: z
-        .string()
-        .optional()
-        .describe("End date/time in ISO format"),
-      notes: z.string().optional().describe("Additional notes or details"),
-    }),
-    execute: async ({
-      tripId,
-      name,
-      segmentType,
-      startLocation,
-      endLocation,
-      startTime,
-      endTime,
-      notes,
-    }) => {
-      // Geocode locations
-      const startGeo = await geocodeLocation(startLocation);
-      const endGeo = await geocodeLocation(endLocation);
+    add_segment: tool({
+      description:
+        "Add a segment to a trip. A segment represents a part of the journey (flight, hotel stay, activity period, etc.)",
+      inputSchema: z.object({
+        tripId: z.string().describe("ID of the trip to add this segment to"),
+        name: z
+          .string()
+          .describe(
+            "Segment name (e.g., 'Flight to Rome', 'Stay in Florence')"
+          ),
+        segmentType: z
+          .enum(["Flight", "Drive", "Train", "Ferry", "Walk", "Other"])
+          .describe("Type of segment/transportation"),
+        startLocation: z
+          .string()
+          .describe("Starting location (city, country format)"),
+        endLocation: z
+          .string()
+          .describe("Ending location (city, country format)"),
+        startTime: z
+          .string()
+          .optional()
+          .describe("Start date/time in ISO format"),
+        endTime: z
+          .string()
+          .optional()
+          .describe("End date/time in ISO format"),
+        notes: z.string().optional().describe("Additional notes or details"),
+      }),
+      execute: async ({
+        tripId,
+        name,
+        segmentType,
+        startLocation,
+        endLocation,
+        startTime,
+        endTime,
+        notes,
+      }) => {
+        // Geocode locations
+        const startGeo = await geocodeLocation(startLocation);
+        const endGeo = await geocodeLocation(endLocation);
 
-      if (!startGeo || !endGeo) {
-        return {
-          success: false,
-          message: `Could not geocode locations. Please provide specific city/country names.`,
-        };
-      }
+        if (!startGeo || !endGeo) {
+          return {
+            success: false,
+            message: `Could not geocode locations. Please provide specific city/country names.`,
+          };
+        }
 
-      // Get segment type ID
-      const segmentTypeRecord = await prisma.segmentType.findFirst({
-        where: { name: segmentType },
-      });
+        // Get segment type ID
+        const segmentTypeRecord = await prisma.segmentType.findFirst({
+          where: { name: segmentType },
+        });
 
-      if (!segmentTypeRecord) {
-        return {
-          success: false,
-          message: `Segment type "${segmentType}" not found`,
-        };
-      }
+        if (!segmentTypeRecord) {
+          return {
+            success: false,
+            message: `Segment type "${segmentType}" not found`,
+          };
+        }
 
-      // Get the next order number
-      const existingSegments = await prisma.segment.findMany({
-        where: { tripId },
-        orderBy: { order: "desc" },
-        take: 1,
-      });
-      const nextOrder =
-        existingSegments.length > 0 ? existingSegments[0].order + 1 : 0;
+        // Get the next order number
+        const existingSegments = await prisma.segment.findMany({
+          where: { tripId },
+          orderBy: { order: "desc" },
+          take: 1,
+        });
+        const nextOrder =
+          existingSegments.length > 0 ? existingSegments[0].order + 1 : 0;
 
-      const segment = await prisma.segment.create({
-        data: {
-          name,
-          tripId,
-          segmentTypeId: segmentTypeRecord.id,
-          startTitle: startGeo.formatted,
-          startLat: startGeo.lat,
-          startLng: startGeo.lng,
-          endTitle: endGeo.formatted,
-          endLat: endGeo.lat,
-          endLng: endGeo.lng,
-          startTime: startTime ? new Date(startTime) : null,
-          endTime: endTime ? new Date(endTime) : null,
-          notes: notes || null,
-          order: nextOrder,
-        },
-      });
-
-      return {
-        success: true,
-        segmentId: segment.id,
-        message: `Added segment "${name}" to trip`,
-      };
-    },
-  }),
-
-  suggest_reservation: tool({
-    description:
-      "Suggest a reservation for a segment (hotel, flight, restaurant, activity). This creates a suggestion in the trip planner.",
-    parameters: z.object({
-      segmentId: z
-        .string()
-        .describe("ID of the segment this reservation belongs to"),
-      name: z
-        .string()
-        .describe("Name of the place/service (e.g., 'Grand Hotel Rome')"),
-      category: z
-        .enum(["Travel", "Stay", "Activity", "Dining"])
-        .describe("Category of reservation"),
-      type: z
-        .string()
-        .describe(
-          "Specific type (e.g., Flight, Hotel, Restaurant, Tour, etc.)"
-        ),
-      confirmationNumber: z
-        .string()
-        .optional()
-        .describe("Confirmation/reference number if known"),
-      notes: z
-        .string()
-        .optional()
-        .describe("Additional details, recommendations, or instructions"),
-      cost: z
-        .number()
-        .optional()
-        .describe("Estimated cost in USD"),
-      location: z
-        .string()
-        .optional()
-        .describe("Physical address or location"),
-      url: z
-        .string()
-        .optional()
-        .describe("Website or booking URL"),
-      startTime: z
-        .string()
-        .optional()
-        .describe("Start time in ISO format"),
-      endTime: z
-        .string()
-        .optional()
-        .describe("End time in ISO format"),
-    }),
-    execute: async ({
-      segmentId,
-      name,
-      category,
-      type,
-      confirmationNumber,
-      notes,
-      cost,
-      location,
-      url,
-      startTime,
-      endTime,
-    }) => {
-      // Get reservation type
-      const reservationType = await prisma.reservationType.findFirst({
-        where: {
-          name: type,
-          category: {
-            name: category,
+        const segment = await prisma.segment.create({
+          data: {
+            name,
+            tripId,
+            segmentTypeId: segmentTypeRecord.id,
+            startTitle: startGeo.formatted,
+            startLat: startGeo.lat,
+            startLng: startGeo.lng,
+            endTitle: endGeo.formatted,
+            endLat: endGeo.lat,
+            endLng: endGeo.lng,
+            startTime: startTime ? new Date(startTime) : null,
+            endTime: endTime ? new Date(endTime) : null,
+            notes: notes || null,
+            order: nextOrder,
           },
-        },
-        include: { category: true },
-      });
+        });
 
-      if (!reservationType) {
         return {
-          success: false,
-          message: `Reservation type "${type}" in category "${category}" not found`,
+          success: true,
+          segmentId: segment.id,
+          message: `Added segment "${name}" to trip`,
         };
-      }
+      },
+    }),
 
-      // Get "Pending" status
-      const status = await prisma.reservationStatus.findFirst({
-        where: { name: "Pending" },
-      });
+    suggest_reservation: tool({
+      description:
+        "Suggest a reservation for a segment (hotel, flight, restaurant, activity). This creates a suggestion in the trip planner.",
+      inputSchema: z.object({
+        segmentId: z
+          .string()
+          .describe("ID of the segment this reservation belongs to"),
+        name: z
+          .string()
+          .describe("Name of the place/service (e.g., 'Grand Hotel Rome')"),
+        category: z
+          .enum(["Travel", "Stay", "Activity", "Dining"])
+          .describe("Category of reservation"),
+        type: z
+          .string()
+          .describe(
+            "Specific type (e.g., Flight, Hotel, Restaurant, Tour, etc.)"
+          ),
+        confirmationNumber: z
+          .string()
+          .optional()
+          .describe("Confirmation/reference number if known"),
+        notes: z
+          .string()
+          .optional()
+          .describe("Additional details, recommendations, or instructions"),
+        cost: z
+          .number()
+          .optional()
+          .describe("Estimated cost in USD"),
+        location: z
+          .string()
+          .optional()
+          .describe("Physical address or location"),
+        url: z
+          .string()
+          .optional()
+          .describe("Website or booking URL"),
+        startTime: z
+          .string()
+          .optional()
+          .describe("Start time in ISO format"),
+        endTime: z
+          .string()
+          .optional()
+          .describe("End time in ISO format"),
+      }),
+      execute: async ({
+        segmentId,
+        name,
+        category,
+        type,
+        confirmationNumber,
+        notes,
+        cost,
+        location,
+        url,
+        startTime,
+        endTime,
+      }) => {
+        // Get reservation type
+        const reservationType = await prisma.reservationType.findFirst({
+          where: {
+            name: type,
+            category: {
+              name: category,
+            },
+          },
+          include: { category: true },
+        });
 
-      if (!status) {
+        if (!reservationType) {
+          return {
+            success: false,
+            message: `Reservation type "${type}" in category "${category}" not found`,
+          };
+        }
+
+        // Get "Pending" status
+        const status = await prisma.reservationStatus.findFirst({
+          where: { name: "Pending" },
+        });
+
+        if (!status) {
+          return {
+            success: false,
+            message: "Could not find Pending status",
+          };
+        }
+
+        const reservation = await prisma.reservation.create({
+          data: {
+            name,
+            segmentId,
+            reservationTypeId: reservationType.id,
+            reservationStatusId: status.id,
+            confirmationNumber: confirmationNumber || null,
+            notes: notes || null,
+            cost: cost || null,
+            currency: cost ? "USD" : null,
+            location: location || null,
+            url: url || null,
+            startTime: startTime ? new Date(startTime) : null,
+            endTime: endTime ? new Date(endTime) : null,
+          },
+        });
+
         return {
-          success: false,
-          message: "Could not find Pending status",
+          success: true,
+          reservationId: reservation.id,
+          message: `Added ${category.toLowerCase()} suggestion: ${name}`,
         };
-      }
-
-      const reservation = await prisma.reservation.create({
-        data: {
-          name,
-          segmentId,
-          reservationTypeId: reservationType.id,
-          reservationStatusId: status.id,
-          confirmationNumber: confirmationNumber || null,
-          notes: notes || null,
-          cost: cost || null,
-          currency: cost ? "USD" : null,
-          location: location || null,
-          url: url || null,
-          startTime: startTime ? new Date(startTime) : null,
-          endTime: endTime ? new Date(endTime) : null,
-        },
-      });
-
-      return {
-        success: true,
-        reservationId: reservation.id,
-        message: `Added ${category.toLowerCase()} suggestion: ${name}`,
-      };
-    },
-  }),
+      },
+    }),
 
     get_user_trips: tool({
       description: "Get a list of the user's existing trips",
-      parameters: z.object({}),
+      inputSchema: z.object({}),
       execute: async () => {
         const trips = await prisma.trip.findMany({
           where: { userId },
