@@ -8,27 +8,15 @@ import { saveMessage } from "@/lib/actions/chat-actions";
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  // #region agent log
-  const fs = require('fs');
-  fs.appendFileSync('/Users/alexkaplinsky/Library/CloudStorage/GoogleDrive-alex@shiftcapital.com/My Drive/AI/Project/travel-planner-v1/.cursor/debug.log', JSON.stringify({location:'chat/route.ts:13',message:'API route called',timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})+'\n');
-  // #endregion
+  try {
+    const session = await auth();
 
-  const session = await auth();
+    if (!session?.user?.id) {
+      return new Response("Unauthorized", { status: 401 });
+    }
 
-  if (!session?.user?.id) {
-    // #region agent log
-    fs.appendFileSync('/Users/alexkaplinsky/Library/CloudStorage/GoogleDrive-alex@shiftcapital.com/My Drive/AI/Project/travel-planner-v1/.cursor/debug.log', JSON.stringify({location:'chat/route.ts:21',message:'Unauthorized - no session',timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})+'\n');
-    // #endregion
-    return new Response("Unauthorized", { status: 401 });
-  }
-
-  const { messages, conversationId } = await req.json();
-
-  // #region agent log
-  fs.appendFileSync('/Users/alexkaplinsky/Library/CloudStorage/GoogleDrive-alex@shiftcapital.com/My Drive/AI/Project/travel-planner-v1/.cursor/debug.log', JSON.stringify({location:'chat/route.ts:30',message:'Request parsed',data:{conversationId:conversationId,messageCount:messages?.length,userId:session.user.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})+'\n');
-  // #endregion
-
-  const userId = session.user.id;
+    const { messages, conversationId } = await req.json();
+    const userId = session.user.id;
 
   // Wrap tools to inject userId
   const toolsWithContext = {
@@ -89,6 +77,13 @@ export async function POST(req: Request) {
     },
   });
 
-  return result.toDataStreamResponse();
+  return result.toTextStreamResponse();
+  } catch (error: any) {
+    console.error('[API /api/chat] Error:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 }
 
