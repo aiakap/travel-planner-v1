@@ -1,0 +1,2 @@
+{"location":"chat/route.ts:13","message":"API route called","timestamp":1768470026030,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"chat/route.ts:30","message":"Request parsed","data":{"messageCount":1,"userId":"cmkf2ddpm0000p49kv17s3o8v"},"timestamp":1768470027493,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}

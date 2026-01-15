@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { openai } from "@ai-sdk/openai";
-import { streamText, convertToCoreMessages } from "ai";
+import { streamText } from "ai";
 import { tripPlanningTools } from "@/lib/ai/tools";
 import { TRIP_PLANNER_SYSTEM_PROMPT } from "@/lib/ai/prompts";
 import { saveMessage } from "@/lib/actions/chat-actions";
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
   const result = await streamText({
     model: openai("gpt-4o"),
     system: TRIP_PLANNER_SYSTEM_PROMPT,
-    messages: convertToCoreMessages(messages),
+    messages: messages,
     tools: toolsWithContext,
     maxSteps: 5, // Allow multiple tool calls in sequence
     onFinish: async ({ text, toolCalls, toolResults }) => {
