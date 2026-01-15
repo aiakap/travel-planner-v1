@@ -12,20 +12,28 @@ export default async function LandingPage() {
       {/* Main Content */}
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative bg-gradient-to-b from-white to-blue-50 py-20 md:py-32">
+        <section className="relative bg-gradient-to-br from-purple-100 via-pink-50 via-yellow-50 to-blue-100 py-24 md:py-40">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                Plan your perfect trip, every time
+              <h1 className="text-5xl md:text-7xl font-bold mb-8">
+                <span className="bg-gradient-to-r from-red-500 via-orange-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 bg-clip-text text-transparent animate-pulse">
+                  🐻 Ctrl+Alt+Dad 💀
+                </span>
+                <br />
+                <span className="text-5xl md:text-6xl bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 bg-clip-text text-transparent">
+                  🌹 Trips 🌹
+                </span>
               </h1>
-              <p className="text-xl md:text-2xl text-gray-600 mb-8">
-                Create itineraries, organize destinations, and share your travel
-                plans all in one place.
+              <p className="text-2xl md:text-3xl text-gray-600 mb-6">
+                A 53-year-old dad learning to code, one trip at a time.
+              </p>
+              <p className="text-xl text-gray-500 mb-8 italic">
+                &quot;What a long, strange <code className="bg-gray-100 px-2 py-1 rounded text-lg">git push</code> it&apos;s been&quot; 🎸
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <AuthButton
                   isLoggedIn={isLoggedIn}
-                  className="w-full sm:w-auto bg-black text-white hover:bg-gray-800 px-6 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center"
+                  className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-xl px-8 py-4 rounded-xl transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl"
                 >
                   {isLoggedIn ? (
                     "Check it Out"
@@ -56,16 +64,16 @@ export default async function LandingPage() {
         {/* Features Section */}
         <section className="py-16 md:py-24 bg-white">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-12">
-              Plan with confidence
+            <h2 className="text-4xl font-bold text-center mb-12">
+              Dad-approved features <span className="text-3xl">🐻💀🌹</span>
             </h2>
             <div className="grid md:grid-cols-3 gap-8">
               <div className="p-6 rounded-lg border border-gray-100 shadow-sm bg-white">
                 <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-4">
                   <MapIcon className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Interactive Maps</h3>
-                <p className="text-gray-600">
+                <h3 className="text-2xl font-semibold mb-3">Interactive Maps</h3>
+                <p className="text-lg text-gray-600">
                   Visualize your trip with interactive maps. See your entire
                   itinerary at a glance.
                 </p>
@@ -82,10 +90,10 @@ export default async function LandingPage() {
                     <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">
+                <h3 className="text-2xl font-semibold mb-3">
                   Day-by-Day Itineraries
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-lg text-gray-600">
                   Organize your trip day by day. Never miss a beat with
                   structured planning.
                 </p>
@@ -103,10 +111,10 @@ export default async function LandingPage() {
                     <path d="M15 5v4h4" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">
+                <h3 className="text-2xl font-semibold mb-3">
                   Drag & Drop Planning
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-lg text-gray-600">
                   Easily rearrange your itinerary with simple drag and drop
                   functionality.
                 </p>
@@ -116,20 +124,19 @@ export default async function LandingPage() {
         </section>
 
         {/* Call to Action Section */}
-        <section className="py-16 md:py-24 bg-gray-800">
+        <section className="py-20 md:py-28 bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              Ready to plan your next adventure?
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+              Ready to <code className="bg-gray-700 px-3 py-2 rounded text-green-400 text-3xl">git commit</code> to your next adventure? 🎸
             </h2>
-            <p className="text-xl text-blue-50 mb-8 max-w-2xl mx-auto">
-              Join thousands of travelers who plan better trips with
-              TripPlanner.
+            <p className="text-2xl text-blue-50 mb-8 max-w-2xl mx-auto">
+              Built by a dad who Googles &quot;how to center a div&quot; at least once a day. 🐻💀
             </p>
             <AuthButton
               isLoggedIn={isLoggedIn}
-              className="inline-block bg-white text-gray-800 hover:bg-blue-50 px-6 py-3 rounded-lg transition-colors duration-200"
+              className="inline-block bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 hover:from-yellow-500 hover:to-orange-600 text-xl font-bold px-10 py-5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
             >
-              {isLoggedIn ? "Check it out" : "Sign Up Now"}
+              {isLoggedIn ? "🐻 Check it out 🐻" : "🌹 Sign Up Now 🌹"}
             </AuthButton>
           </div>
         </section>

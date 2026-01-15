@@ -579,10 +579,10 @@ export default function ManageClient({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-slate-900">
-              Manage Itinerary
+              Dad&apos;s Control Panel 🎮
             </h1>
             <p className="text-slate-500 mt-1">
-              View and manage all your trips, segments, and reservations
+              <code className="text-xs bg-slate-100 px-1 rounded">sudo manage --all-trips</code> • View and manage your adventures
             </p>
           </div>
           <div className="flex gap-3">

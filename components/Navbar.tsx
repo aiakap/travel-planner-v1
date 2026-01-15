@@ -2,7 +2,6 @@
 
 import { login, logout } from "@/lib/auth-actions";
 import { Session } from "next-auth";
-import Image from "next/image";
 import Link from "next/link";
 
 export default function Navbar({ session }: { session: Session | null }) {
@@ -10,10 +9,18 @@ export default function Navbar({ session }: { session: Session | null }) {
     <nav className="bg-white shadow-md py-4 border-b border-gray-200">
       {" "}
       <div className="container mx-auto flex justify-between items-center px-6 lg:px-8">
-        <Link href={"/"} className="flex items-center">
-          <Image src={"/logo.png"} alt="logo" width={50} height={50} />
-          <span className="text-2xl font-bold text-gray-800">
-            Travel Planner
+        <Link href={"/"} className="flex items-center gap-3">
+          <div className="flex items-center justify-center bg-gradient-to-r from-red-500 via-yellow-400 via-green-400 via-blue-500 to-purple-500 text-white font-mono text-base px-3 py-2 rounded-lg shadow-lg animate-pulse">
+            <span className="text-lg">🐻</span>
+            <span className="mx-1 font-bold">Ctrl</span>
+            <span className="mx-0.5">+</span>
+            <span className="font-bold">Alt</span>
+            <span className="mx-0.5">+</span>
+            <span className="font-bold">Dad</span>
+            <span className="text-lg ml-1">💀🌹</span>
+          </div>
+          <span className="text-2xl font-bold bg-gradient-to-r from-red-500 via-orange-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+            Trips
           </span>
         </Link>
 
