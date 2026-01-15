@@ -83,3 +83,4 @@ function getDefaultImage(type: string): string {
   return defaults[type] || "/placeholder.svg"
 }
 
+

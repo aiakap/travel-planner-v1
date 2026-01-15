@@ -26,6 +26,12 @@ export async function createReservation(formData: FormData) {
   const url = formData.get("url")?.toString();
   const imageUrl = formData.get("imageUrl")?.toString();
 
+  // Flight-specific fields
+  const departureLocation = formData.get("departureLocation")?.toString();
+  const departureTimezone = formData.get("departureTimezone")?.toString();
+  const arrivalLocation = formData.get("arrivalLocation")?.toString();
+  const arrivalTimezone = formData.get("arrivalTimezone")?.toString();
+
   if (!segmentId || !name || !reservationTypeId || !reservationStatusId) {
     throw new Error("Missing required fields");
   }
@@ -62,10 +68,14 @@ export async function createReservation(formData: FormData) {
       location: location || null,
       url: url || null,
       imageUrl: imageUrl || null,
+      // Flight-specific fields
+      departureLocation: departureLocation || null,
+      departureTimezone: departureTimezone || null,
+      arrivalLocation: arrivalLocation || null,
+      arrivalTimezone: arrivalTimezone || null,
     },
   });
 
   revalidatePath(`/trips/${segment.trip.id}`);
   redirect(`/trips/${segment.trip.id}`);
 }
-

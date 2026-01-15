@@ -112,3 +112,4 @@ export default function EditTripForm({ trip }: { trip: Trip }) {
   );
 }
 
+

@@ -66,3 +66,4 @@ ALTER TABLE "Reservation" ADD CONSTRAINT "Reservation_reservationStatusId_fkey" 
 -- AddForeignKey
 ALTER TABLE "Reservation" ADD CONSTRAINT "Reservation_segmentId_fkey" FOREIGN KEY ("segmentId") REFERENCES "Segment"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
+

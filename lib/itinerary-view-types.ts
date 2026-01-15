@@ -66,3 +66,4 @@ export function mapCategoryToType(categoryName: string): ViewReservation["type"]
   return mapping[categoryName] || "activity"
 }
 
+

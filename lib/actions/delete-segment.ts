@@ -37,3 +37,4 @@ export async function deleteSegment(segmentId: string) {
   return { success: true, tripId: segment.trip.id };
 }
 
+

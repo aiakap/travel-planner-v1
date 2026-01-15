@@ -157,6 +157,11 @@ model Reservation {
   location String?
   url String?
   imageUrl String?
+  // Flight-specific fields (nullable for non-flight reservations)
+  departureLocation String?
+  departureTimezone String?  // IANA timezone, e.g., "America/New_York"
+  arrivalLocation String?
+  arrivalTimezone String?    // IANA timezone, e.g., "Europe/Amsterdam"
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

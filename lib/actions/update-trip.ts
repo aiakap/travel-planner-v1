@@ -37,3 +37,4 @@ export async function updateTrip(tripId: string, formData: FormData) {
   redirect(`/trips/${tripId}`);
 }
 
+

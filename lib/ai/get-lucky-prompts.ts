@@ -134,3 +134,4 @@ export function getGetLuckyPreview(): string {
   return "✨ Generate a random dream trip with a complete itinerary!";
 }
 
+
