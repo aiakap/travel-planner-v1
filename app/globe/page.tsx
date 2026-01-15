@@ -1,8 +1,11 @@
 "use client";
+import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import Globe, { GlobeMethods } from "react-globe.gl";
+
+// React-globe.gl / three* need the browser; disable SSR for this import.
+const Globe = dynamic(() => import("react-globe.gl"), { ssr: false });
 
 export interface TransformedLocation {
   lat: number;
@@ -12,7 +15,7 @@ export interface TransformedLocation {
 }
 
 export default function GlobePage() {
-  const globeRef = useRef<GlobeMethods | undefined>(undefined);
+  const globeRef = useRef<any>(undefined);
 
   const [visitedCountries, setVisitedCountries] = useState<Set<string>>(
     new Set()
