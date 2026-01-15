@@ -180,3 +180,12 @@ model ChatMessage {
   toolCalls Json?
   createdAt DateTime @default(now())
 }
+
+model ImagePrompt {
+  id String @id @default(cuid())
+  name String @unique
+  prompt String @db.Text
+  category String // "trip", "segment", "reservation"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

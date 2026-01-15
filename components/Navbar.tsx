@@ -33,10 +33,10 @@ export default function Navbar({ session }: { session: Session | null }) {
                 🤖 AI Chat
               </Link>
               <Link
-                href={"/view"}
+                href={"/manage"}
                 className="text-slate-900 hover:text-sky-500"
               >
-                📋 Itinerary View
+                📋 Manage
               </Link>
               <Link
                 href={"/globe"}
