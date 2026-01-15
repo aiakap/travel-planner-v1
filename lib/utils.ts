@@ -23,3 +23,13 @@ export function formatDateTimeInTimeZone(
     return value.toLocaleString();
   }
 }
+
+export function formatForDateTimeLocal(value: Date): string {
+  const pad = (input: number) => String(input).padStart(2, "0");
+  return [
+    `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(
+      value.getDate()
+    )}`,
+    `${pad(value.getHours())}:${pad(value.getMinutes())}`,
+  ].join("T");
+}

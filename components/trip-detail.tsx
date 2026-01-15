@@ -167,6 +167,13 @@ export default function TripDetailClient({
                                   {segment.notes}
                                 </p>
                               )}
+                              <div className="mt-3">
+                                <Link
+                                  href={`/trips/${trip.id}/segments/${segment.id}/edit`}
+                                >
+                                  <Button variant="outline">Edit Segment</Button>
+                                </Link>
+                              </div>
                             </>
                           );
                         })()}

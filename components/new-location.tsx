@@ -4,28 +4,22 @@ import { useEffect, useState, useTransition } from "react";
 import { Button } from "./ui/button";
 import { addSegment } from "@/lib/actions/add-location";
 import { UploadButton } from "@/lib/upload-thing";
-
-function formatForDateTimeLocal(date: Date) {
-  const pad = (value: number) => String(value).padStart(2, "0");
-  return [
-    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
-      date.getDate()
-    )}`,
-    `${pad(date.getHours())}:${pad(date.getMinutes())}`,
-  ].join("T");
-}
+import { formatForDateTimeLocal } from "@/lib/utils";
 
 export default function NewLocationClient({
   tripId,
   lastEndTime,
+  lastEndAddress,
 }: {
   tripId: string;
   lastEndTime: string | null;
+  lastEndAddress: string | null;
 }) {
   const [isPending, startTransation] = useTransition();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
+  const [startAddress, setStartAddress] = useState("");
 
   useEffect(() => {
     if (!lastEndTime) {
@@ -42,6 +36,13 @@ export default function NewLocationClient({
     setStartTime(formatForDateTimeLocal(start));
     setEndTime(formatForDateTimeLocal(end));
   }, [lastEndTime]);
+
+  useEffect(() => {
+    if (!lastEndAddress) {
+      return;
+    }
+    setStartAddress(lastEndAddress);
+  }, [lastEndAddress]);
 
   return (
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center bg-gray-50">
@@ -78,6 +79,8 @@ export default function NewLocationClient({
                 name="startAddress"
                 type="text"
                 required
+                value={startAddress}
+                onChange={(event) => setStartAddress(event.target.value)}
                 className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>

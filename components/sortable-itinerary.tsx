@@ -10,6 +10,8 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { useId, useState } from "react";
 import { formatDateTimeInTimeZone } from "@/lib/utils";
+import Link from "next/link";
+import { Button } from "./ui/button";
 
 interface SortableItineraryProps {
   segments: Segment[];
@@ -28,6 +30,7 @@ interface SortableItineraryProps {
 function SortableItem({
   item,
   timeZoneInfo,
+  tripId,
 }: {
   item: Segment;
   timeZoneInfo?: {
@@ -36,6 +39,7 @@ function SortableItem({
     endTimeZoneId?: string;
     endTimeZoneName?: string;
   };
+  tripId: string;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: item.id });
@@ -46,9 +50,9 @@ function SortableItem({
       {...attributes}
       {...listeners}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className="p-4 border rounded-md flex justify-between items-center hover:shadow transition-shadow"
+      className="p-4 border rounded-md flex flex-col md:flex-row md:items-center md:justify-between gap-4 hover:shadow transition-shadow"
     >
-      <div>
+      <div className="flex-1">
         <h4 className="font-medium text-gray-800">
           {item.name || `${item.startTitle} → ${item.endTitle}`}
         </h4>
@@ -80,7 +84,14 @@ function SortableItem({
           <p className="text-sm text-gray-500 truncate max-w-xs">{item.notes}</p>
         )}
       </div>
-      <div className="text-sm text-gray-600"> Day {item.order}</div>
+      <div className="flex items-center gap-3">
+        <div className="text-sm text-gray-600"> Day {item.order}</div>
+        <Link href={`/trips/${tripId}/segments/${item.id}/edit`}>
+          <Button variant="outline" size="sm">
+            Edit
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 }
@@ -131,6 +142,7 @@ export default function SortableItinerary({
               key={key}
               item={item}
               timeZoneInfo={segmentTimeZones[item.id]}
+              tripId={tripId}
             />
           ))}
         </div>
