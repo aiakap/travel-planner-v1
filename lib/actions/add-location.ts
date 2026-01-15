@@ -12,8 +12,17 @@ async function geocodeAddress(address: string) {
     )}&key=${apiKey}`
   );
 
+  if (!response.ok) {
+    throw new Error(`Geocoding failed with status ${response.status}`);
+  }
+
   const data = await response.json();
-  const { lat, lng } = data.results[0].geometry.location;
+  const firstResult = data.results?.[0];
+  if (!firstResult?.geometry?.location) {
+    throw new Error("No results found for that address");
+  }
+
+  const { lat, lng } = firstResult.geometry.location;
   return { lat, lng };
 }
 
