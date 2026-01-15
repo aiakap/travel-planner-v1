@@ -44,3 +44,29 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - **2026-01-14 23:30–23:45** — Tweaked upload settings (anonymous uploads for testing, larger image limit).
 - **2026-01-14 23:45–23:59** — Refined itinerary UI and usability.
 - **2026-01-15 00:00–00:10** — Edit segments end-to-end working; ready to add reservations next.
+- **2026-01-15 10:00–10:30** — Fixed AI chat to work with AI SDK v6; basic chat now functional.
+
+## AI Chat Feature
+
+The AI chat uses **Vercel AI SDK v6** with OpenAI GPT-4o. Key implementation notes:
+
+### Environment Variables Required
+```
+OPENAI_API_KEY=your-openai-api-key
+```
+
+### Current Status
+- ✅ Basic chat working - users can have conversations with the AI travel assistant
+- ✅ Message streaming with real-time responses
+- ✅ Messages saved to database per conversation
+
+### Future Enhancements (TODO)
+- [ ] **Enable AI Tools** - Uncomment and wire up `createTripPlanningTools()` in `/app/api/chat/route.ts` to allow the AI to:
+  - Create trips automatically
+  - Add segments/locations to trips
+  - Suggest and create reservations
+  - Fetch user's existing trips
+- [ ] **Conversation History** - Load previous messages when returning to a conversation
+- [ ] **Trip Context** - Pass current trip context to the AI for more relevant suggestions
+- [ ] **File/Image Attachments** - Allow users to upload travel documents or images for the AI to analyze
+- [ ] **Structured Output** - Use AI SDK's `output` feature for extracting structured trip data from conversations

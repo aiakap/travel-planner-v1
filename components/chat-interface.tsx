@@ -1,13 +1,30 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
+import { UIMessage } from "ai";
 import { Button } from "@/components/ui/button";
 import { Send, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 interface ChatInterfaceProps {
   conversationId: string;
-  initialMessages?: any[];
+  initialMessages?: UIMessage[];
+}
+
+// Helper to extract text content from message parts
+function getMessageText(message: UIMessage): string {
+  return message.parts
+    .filter((part): part is { type: "text"; text: string } => part.type === "text")
+    .map((part) => part.text)
+    .join("");
+}
+
+// Helper to check for tool invocations in message parts
+function getToolInvocations(message: UIMessage) {
+  return message.parts.filter(
+    (part): part is { type: "tool-invocation"; toolInvocation: { toolName: string; state: string } } =>
+      part.type === "tool-invocation"
+  );
 }
 
 export default function ChatInterface({
@@ -15,7 +32,7 @@ export default function ChatInterface({
   initialMessages = [],
 }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
-  
+
   const { messages, sendMessage, status, error } = useChat({
     api: "/api/chat",
     body: { conversationId },
@@ -37,47 +54,52 @@ export default function ChatInterface({
         {messages.length === 0 && (
           <div className="text-center text-gray-500 mt-8">
             <p className="text-lg font-medium mb-2">
-              👋 Hi! I'm your AI travel planning assistant
+              👋 Hi! I&apos;m your AI travel planning assistant
             </p>
             <p className="text-sm">
-              Tell me about your dream trip and I'll help you plan it!
+              Tell me about your dream trip and I&apos;ll help you plan it!
             </p>
           </div>
         )}
 
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex ${
-              message.role === "user" ? "justify-end" : "justify-start"
-            }`}
-          >
+        {messages.map((message) => {
+          const textContent = getMessageText(message);
+          const toolInvocations = getToolInvocations(message);
+
+          return (
             <div
-              className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                message.role === "user"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-900"
+              key={message.id}
+              className={`flex ${
+                message.role === "user" ? "justify-end" : "justify-start"
               }`}
             >
-              <div className="whitespace-pre-wrap">{message.content}</div>
-              
-              {/* Show tool calls if present */}
-              {message.toolInvocations && message.toolInvocations.length > 0 && (
-                <div className="mt-2 text-xs opacity-75 border-t border-gray-300 pt-2">
-                  {message.toolInvocations.map((tool: any, idx: number) => (
-                    <div key={idx} className="mb-1">
-                      ✓ {tool.toolName === "create_trip" && "Created trip"}
-                      {tool.toolName === "add_segment" && "Added segment"}
-                      {tool.toolName === "suggest_reservation" &&
-                        "Added reservation"}
-                      {tool.toolName === "get_user_trips" && "Fetched trips"}
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div
+                className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                  message.role === "user"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-900"
+                }`}
+              >
+                <div className="whitespace-pre-wrap">{textContent}</div>
+
+                {/* Show tool calls if present */}
+                {toolInvocations.length > 0 && (
+                  <div className="mt-2 text-xs opacity-75 border-t border-gray-300 pt-2">
+                    {toolInvocations.map((tool, idx) => (
+                      <div key={idx} className="mb-1">
+                        ✓ {tool.toolInvocation.toolName === "create_trip" && "Created trip"}
+                        {tool.toolInvocation.toolName === "add_segment" && "Added segment"}
+                        {tool.toolInvocation.toolName === "suggest_reservation" &&
+                          "Added reservation"}
+                        {tool.toolInvocation.toolName === "get_user_trips" && "Fetched trips"}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {isLoading && (
           <div className="flex justify-start">
@@ -97,7 +119,7 @@ export default function ChatInterface({
           onSubmit={(e) => {
             e.preventDefault();
             if (input.trim() && !isLoading) {
-              sendMessage({ role: "user", content: input });
+              sendMessage({ text: input });
               setInput("");
             }
           }}
