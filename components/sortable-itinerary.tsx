@@ -29,7 +29,7 @@ function SortableItem({ item }: { item: Segment }) {
     >
       <div>
         <h4 className="font-medium text-gray-800">
-          {item.startTitle} → {item.endTitle}
+          {item.name || `${item.startTitle} → ${item.endTitle}`}
         </h4>
         <p className="text-sm text-gray-500 truncate max-w-xs">
           {item.startTime

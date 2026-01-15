@@ -1,11 +1,13 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "./ui/button";
 import { addSegment } from "@/lib/actions/add-location";
+import { UploadButton } from "@/lib/upload-thing";
 
 export default function NewLocationClient({ tripId }: { tripId: string }) {
   const [isPending, startTransation] = useTransition();
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   return (
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center bg-gray-50">
@@ -23,6 +25,17 @@ export default function NewLocationClient({ tripId }: { tripId: string }) {
               });
             }}
           >
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Segment Name
+              </label>
+              <input
+                name="name"
+                type="text"
+                required
+                className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Start Address
@@ -76,6 +89,26 @@ export default function NewLocationClient({ tripId }: { tripId: string }) {
                 rows={3}
                 className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Segment Image (optional)
+              </label>
+              {imageUrl && (
+                <p className="text-sm text-gray-500 mb-2 truncate">{imageUrl}</p>
+              )}
+              <UploadButton
+                endpoint="imageUploader"
+                onClientUploadComplete={(res) => {
+                  if (res && res[0].ufsUrl) {
+                    setImageUrl(res[0].ufsUrl);
+                  }
+                }}
+                onUploadError={(error: Error) => {
+                  console.error("Upload error: ", error);
+                }}
+              />
+              <input type="hidden" name="imageUrl" value={imageUrl || ""} />
             </div>
             <Button type="submit" className="w-full">
               {isPending ? "Adding..." : "Add Segment"}

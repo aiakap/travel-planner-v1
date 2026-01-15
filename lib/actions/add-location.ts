@@ -32,14 +32,16 @@ export async function addSegment(formData: FormData, tripId: string) {
     throw new Error("Not authenticated");
   }
 
+  const name = formData.get("name")?.toString();
   const startAddress = formData.get("startAddress")?.toString();
   const endAddress = formData.get("endAddress")?.toString();
   const notes = formData.get("notes")?.toString();
   const startTimeStr = formData.get("startTime")?.toString();
   const endTimeStr = formData.get("endTime")?.toString();
+  const imageUrl = formData.get("imageUrl")?.toString();
 
-  if (!startAddress || !endAddress) {
-    throw new Error("Start and end addresses are required");
+  if (!name || !startAddress || !endAddress) {
+    throw new Error("Name, start address, and end address are required");
   }
 
   const [startGeo, endGeo] = await Promise.all([
@@ -59,6 +61,8 @@ export async function addSegment(formData: FormData, tripId: string) {
       endTitle: endGeo.formatted,
       endLat: endGeo.lat,
       endLng: endGeo.lng,
+      name,
+      imageUrl: imageUrl || null,
       notes: notes || null,
       startTime: startTimeStr ? new Date(startTimeStr) : null,
       endTime: endTimeStr ? new Date(endTimeStr) : null,

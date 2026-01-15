@@ -1,7 +1,14 @@
 "use client";
 
 import { Segment } from "@/app/generated/prisma";
-import { GoogleMap, Marker, Polyline, useJsApiLoader } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  InfoWindow,
+  Marker,
+  Polyline,
+  useJsApiLoader,
+} from "@react-google-maps/api";
+import { useState } from "react";
 
 interface MapProps {
   segments: Segment[];
@@ -11,6 +18,7 @@ const containerStyle = { width: "100%", height: "100%" };
 
 export default function Map({ segments }: MapProps) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  const [activeMarker, setActiveMarker] = useState<string | null>(null);
 
   const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script", // prevents duplicate script loads
@@ -48,13 +56,47 @@ export default function Map({ segments }: MapProps) {
           position={{ lat: segment.startLat, lng: segment.startLng }}
           title={`Start: ${segment.startTitle}`}
           label="S"
+          onClick={() => setActiveMarker(`start-${segment.id}`)}
         />,
         <Marker
           key={`end-${segment.id}-${key}`}
           position={{ lat: segment.endLat, lng: segment.endLng }}
           title={`End: ${segment.endTitle}`}
           label="E"
+          onClick={() => setActiveMarker(`end-${segment.id}`)}
         />,
+        activeMarker === `start-${segment.id}` && (
+          <InfoWindow
+            key={`start-info-${segment.id}-${key}`}
+            position={{ lat: segment.startLat, lng: segment.startLng }}
+            onCloseClick={() => setActiveMarker(null)}
+          >
+            <div className="text-sm">
+              <div className="font-semibold">{segment.name}</div>
+              <div>Start: {segment.startTitle}</div>
+              {segment.startTime && (
+                <div>{new Date(segment.startTime).toLocaleString()}</div>
+              )}
+              {segment.notes && <div className="text-xs mt-1">{segment.notes}</div>}
+            </div>
+          </InfoWindow>
+        ),
+        activeMarker === `end-${segment.id}` && (
+          <InfoWindow
+            key={`end-info-${segment.id}-${key}`}
+            position={{ lat: segment.endLat, lng: segment.endLng }}
+            onCloseClick={() => setActiveMarker(null)}
+          >
+            <div className="text-sm">
+              <div className="font-semibold">{segment.name}</div>
+              <div>End: {segment.endTitle}</div>
+              {segment.endTime && (
+                <div>{new Date(segment.endTime).toLocaleString()}</div>
+              )}
+              {segment.notes && <div className="text-xs mt-1">{segment.notes}</div>}
+            </div>
+          </InfoWindow>
+        ),
       ])}
     </GoogleMap>
   );
