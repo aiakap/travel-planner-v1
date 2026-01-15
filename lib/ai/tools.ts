@@ -37,45 +37,44 @@ async function geocodeLocation(location: string): Promise<{
   return null;
 }
 
-export const tripPlanningTools = {
-  create_trip: tool({
-    description:
-      "Create a new trip with title, description, and date range. Returns the trip ID for adding segments.",
-    parameters: z.object({
-      title: z.string().describe("Trip title (e.g., 'Summer in Italy')"),
-      description: z
-        .string()
-        .describe("Brief description of the trip and what to expect"),
-      startDate: z
-        .string()
-        .describe("Start date in YYYY-MM-DD format"),
-      endDate: z.string().describe("End date in YYYY-MM-DD format"),
-      userId: z.string().describe("User ID who owns this trip"),
-    }),
-    execute: async ({
-      title,
-      description,
-      startDate,
-      endDate,
-      userId,
-    }) => {
-      const trip = await prisma.trip.create({
-        data: {
-          title,
-          description,
-          startDate: new Date(startDate),
-          endDate: new Date(endDate),
-          userId,
-        },
-      });
+export function createTripPlanningTools(userId: string) {
+  return {
+    create_trip: tool({
+      description:
+        "Create a new trip with title, description, and date range. Returns the trip ID for adding segments.",
+      parameters: z.object({
+        title: z.string().describe("Trip title (e.g., 'Summer in Italy')"),
+        description: z
+          .string()
+          .describe("Brief description of the trip and what to expect"),
+        startDate: z
+          .string()
+          .describe("Start date in YYYY-MM-DD format"),
+        endDate: z.string().describe("End date in YYYY-MM-DD format"),
+      }),
+      execute: async ({
+        title,
+        description,
+        startDate,
+        endDate,
+      }) => {
+        const trip = await prisma.trip.create({
+          data: {
+            title,
+            description,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            userId,
+          },
+        });
 
-      return {
-        success: true,
-        tripId: trip.id,
-        message: `Created trip "${title}" from ${startDate} to ${endDate}`,
-      };
-    },
-  }),
+        return {
+          success: true,
+          tripId: trip.id,
+          message: `Created trip "${title}" from ${startDate} to ${endDate}`,
+        };
+      },
+    }),
 
   add_segment: tool({
     description:
@@ -289,36 +288,35 @@ export const tripPlanningTools = {
     },
   }),
 
-  get_user_trips: tool({
-    description: "Get a list of the user's existing trips",
-    parameters: z.object({
-      userId: z.string().describe("User ID to fetch trips for"),
-    }),
-    execute: async ({ userId }) => {
-      const trips = await prisma.trip.findMany({
-        where: { userId },
-        orderBy: { createdAt: "desc" },
-        take: 10,
-        include: {
-          segments: {
-            orderBy: { order: "asc" },
-            take: 3,
+    get_user_trips: tool({
+      description: "Get a list of the user's existing trips",
+      parameters: z.object({}),
+      execute: async () => {
+        const trips = await prisma.trip.findMany({
+          where: { userId },
+          orderBy: { createdAt: "desc" },
+          take: 10,
+          include: {
+            segments: {
+              orderBy: { order: "asc" },
+              take: 3,
+            },
           },
-        },
-      });
+        });
 
-      return {
-        success: true,
-        trips: trips.map((trip) => ({
-          id: trip.id,
-          title: trip.title,
-          description: trip.description,
-          startDate: trip.startDate.toISOString(),
-          endDate: trip.endDate.toISOString(),
-          segmentCount: trip.segments.length,
-        })),
-      };
-    },
-  }),
-};
+        return {
+          success: true,
+          trips: trips.map((trip) => ({
+            id: trip.id,
+            title: trip.title,
+            description: trip.description,
+            startDate: trip.startDate.toISOString(),
+            endDate: trip.endDate.toISOString(),
+            segmentCount: trip.segments.length,
+          })),
+        };
+      },
+    }),
+  };
+}
 
