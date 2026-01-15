@@ -3,7 +3,7 @@
 import { useChat } from "@ai-sdk/react";
 import { Button } from "@/components/ui/button";
 import { Send, Loader2 } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface ChatInterfaceProps {
   conversationId: string;
@@ -14,14 +14,16 @@ export default function ChatInterface({
   conversationId,
   initialMessages = [],
 }: ChatInterfaceProps) {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
-    useChat({
-      api: "/api/chat",
-      body: { conversationId },
-      initialMessages,
-    });
+  const [input, setInput] = useState("");
+  
+  const { messages, sendMessage, status, error } = useChat({
+    api: "/api/chat",
+    body: { conversationId },
+    initialMessages,
+  });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isLoading = status === "in_progress";
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -91,15 +93,24 @@ export default function ChatInterface({
 
       {/* Input Form */}
       <div className="border-t p-4 bg-white">
-        <form onSubmit={handleSubmit} className="flex gap-2">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (input.trim() && !isLoading) {
+              sendMessage({ role: "user", content: input });
+              setInput("");
+            }
+          }}
+          className="flex gap-2"
+        >
           <input
             value={input}
-            onChange={handleInputChange}
+            onChange={(e) => setInput(e.target.value)}
             placeholder="Describe your dream trip..."
             className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             disabled={isLoading}
           />
-          <Button type="submit" disabled={isLoading || !input?.trim()}>
+          <Button type="submit" disabled={isLoading || !input.trim()}>
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
@@ -107,6 +118,11 @@ export default function ChatInterface({
             )}
           </Button>
         </form>
+        {error && (
+          <div className="mt-2 text-sm text-red-600">
+            Error: {error.message}
+          </div>
+        )}
       </div>
     </div>
   );
