@@ -27,6 +27,12 @@ export default function Navbar({ session }: { session: Session | null }) {
                 My Trips
               </Link>
               <Link
+                href={"/chat"}
+                className="text-slate-900 hover:text-sky-500 font-medium"
+              >
+                🤖 AI Chat
+              </Link>
+              <Link
                 href={"/globe"}
                 className="text-slate-900 hover:text-sky-500"
               >
