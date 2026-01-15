@@ -2,7 +2,7 @@
 
 import { Segment, Trip } from "@/app/generated/prisma";
 import Image from "next/image";
-import { Calendar, MapPin, Plus } from "lucide-react";
+import { Calendar, MapPin, Plus, Pencil } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
@@ -46,7 +46,12 @@ export default function TripDetailClient({ trip }: TripDetailClientProps) {
             </span>
           </div>
         </div>
-        <div className="mt-4 md:mt-0">
+        <div className="mt-4 md:mt-0 flex gap-3">
+          <Link href={`/trips/${trip.id}/edit`}>
+            <Button variant="outline">
+              <Pencil className="mr-2 h-5 w-5" /> Edit Trip
+            </Button>
+          </Link>
           <Link href={`/trips/${trip.id}/itinerary/new`}>
             <Button>
               <Plus className="mr-2 h-5 w-5" /> Add Segment
