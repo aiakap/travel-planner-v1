@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { generateAndUploadImage } from "@/lib/image-generation";
+import { queueReservationImageGeneration } from "./queue-image-generation";
 
 export async function updateReservation(formData: FormData) {
   const session = await auth();
@@ -96,30 +96,24 @@ export async function updateReservation(formData: FormData) {
     // User uploaded new custom image
     updateData.imageUrl = imageUrl;
     updateData.imageIsCustom = true;
-  } else if (relevantFieldsChanged && !existingReservation.imageIsCustom) {
-    // Regenerate if not custom image
-    try {
-      const result = await generateAndUploadImage(
-        {
-          ...existingReservation,
-          ...updateData,
-        },
-        "reservation"
-      );
-      updateData.imageUrl = result.imageUrl;
-      updateData.imageIsCustom = false;
-    } catch (error) {
-      console.error("Reservation image regeneration failed:", error);
-      // Keep existing image
-    }
-  } else if (!imageUrl) {
-    updateData.imageUrl = existingReservation.imageUrl;
   }
 
+  // Update the reservation
   await prisma.reservation.update({
     where: { id: reservationId },
     data: updateData,
   });
+
+  // Queue image regeneration if it's not a custom image
+  if (!imageUrl || imageUrl === existingReservation.imageUrl) {
+    if (!existingReservation.imageIsCustom) {
+      try {
+        await queueReservationImageGeneration(reservationId);
+      } catch (error) {
+        console.error("Failed to queue reservation image:", error);
+      }
+    }
+  }
 
   revalidatePath(`/trips/${existingReservation.segment.trip.id}`);
   redirect(`/trips/${existingReservation.segment.trip.id}`);

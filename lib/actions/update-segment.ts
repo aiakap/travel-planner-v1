@@ -3,7 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { generateAndUploadImage } from "@/lib/image-generation";
+import { queueSegmentImageGeneration } from "./queue-image-generation";
 
 async function geocodeAddress(address: string) {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY!;
@@ -89,34 +89,24 @@ export async function updateSegment(segmentId: string, formData: FormData) {
     // User uploaded new custom image
     updateData.imageUrl = imageUrl;
     updateData.imageIsCustom = true;
-  } else if (relevantFieldsChanged && !existingSegment.imageIsCustom) {
-    // Regenerate if not custom image
-    try {
-      const segmentType = await prisma.segmentType.findUnique({
-        where: { id: segmentTypeId },
-      });
-      const result = await generateAndUploadImage(
-        {
-          ...existingSegment,
-          ...updateData,
-          segmentType: segmentType || existingSegment.segmentType,
-        },
-        "segment"
-      );
-      updateData.imageUrl = result.imageUrl;
-      updateData.imageIsCustom = false;
-    } catch (error) {
-      console.error("Segment image regeneration failed:", error);
-      // Keep existing image
-    }
-  } else if (!imageUrl) {
-    updateData.imageUrl = existingSegment.imageUrl;
   }
 
+  // Update the segment
   await prisma.segment.update({
     where: { id: existingSegment.id },
     data: updateData,
   });
+
+  // Queue image regeneration if it's not a custom image
+  if (!imageUrl || imageUrl === existingSegment.imageUrl) {
+    if (!existingSegment.imageIsCustom) {
+      try {
+        await queueSegmentImageGeneration(segmentId);
+      } catch (error) {
+        console.error("Failed to queue segment image:", error);
+      }
+    }
+  }
 
   redirect(`/trips/${existingSegment.tripId}`);
 }

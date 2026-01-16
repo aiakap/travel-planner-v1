@@ -3,7 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "../prisma";
 import { redirect } from "next/navigation";
-import { generateAndUploadImage } from "@/lib/image-generation";
+import { queueTripImageGeneration } from "./queue-image-generation";
 
 export async function updateTrip(tripId: string, formData: FormData) {
   const session = await auth();
@@ -52,38 +52,32 @@ export async function updateTrip(tripId: string, formData: FormData) {
     updateData.imageUrl = imageUrl;
     updateData.imageIsCustom = true;
     updateData.imagePromptId = null;
-  } else if (nameOrDescChanged && !existingTrip.imageIsCustom) {
-    // Regenerate only if it's not a custom image
-    try {
-      const result = await generateAndUploadImage(
-        {
-          ...existingTrip,
-          title,
-          description,
-          startDate,
-          endDate,
-          segments: existingTrip.segments,
-        },
-        "trip"
-      );
-      updateData.imageUrl = result.imageUrl;
-      updateData.imagePromptId = result.promptId;
-      updateData.imageIsCustom = false;
-    } catch (error) {
-      console.error("Image regeneration failed:", error);
-      // Keep existing image
-    }
-  } else if (!imageUrl && !existingTrip.imageUrl) {
-    // No image provided and none exists - could generate here if desired
-    updateData.imageUrl = null;
   }
+
+  // Update the trip first
+  await prisma.trip.update({
+    where: { id: tripId, userId: session.user.id },
+    data: updateData,
+  });
+
+  // Queue image regeneration if it's not a custom image
+  if (!imageUrl || imageUrl === existingTrip.imageUrl) {
+    if (!existingTrip.imageIsCustom) {
+      try {
+        await queueTripImageGeneration(tripId, existingTrip.imagePromptId || undefined);
+      } catch (error) {
+        console.error("Failed to queue trip image:", error);
+      }
+    }
+  }
+
+  redirect("/trips");
 
   await prisma.trip.update({
     where: { id: tripId, userId: session.user.id },
     data: updateData,
   });
 
-  redirect(`/trips/${tripId}`);
 }
 
 
