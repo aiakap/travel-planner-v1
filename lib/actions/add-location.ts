@@ -82,9 +82,11 @@ export async function addSegment(formData: FormData, tripId: string) {
   // Queue image generation if user didn't upload one
   if (!imageUrl) {
     try {
-      await queueSegmentImageGeneration(segment.id);
+      const queueId = await queueSegmentImageGeneration(segment.id);
+      console.log(`✓ Queued segment image generation: ${queueId}`);
     } catch (error) {
-      console.error("Failed to queue segment image:", error);
+      console.error("❌ Failed to queue segment image generation:", error);
+      console.error("Error details:", error);
       // Don't fail the segment creation if queue fails
     }
   }

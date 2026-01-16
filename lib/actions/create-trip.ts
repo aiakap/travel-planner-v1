@@ -44,9 +44,10 @@ export async function createTrip(formData: FormData) {
   // Queue image generation if user didn't upload one
   if (!imageUrl) {
     try {
-      await queueTripImageGeneration(trip.id);
+      const queueId = await queueTripImageGeneration(trip.id);
+      console.log(`✓ Queued trip image generation: ${queueId}`);
     } catch (error) {
-      console.error("Failed to queue image generation:", error);
+      console.error("❌ Failed to queue trip image generation:", error);
       // Don't fail the trip creation if queue fails
     }
   }

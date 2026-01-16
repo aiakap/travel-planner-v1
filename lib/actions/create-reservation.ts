@@ -86,9 +86,11 @@ export async function createReservation(formData: FormData) {
   // Queue image generation if user didn't upload one
   if (!imageUrl) {
     try {
-      await queueReservationImageGeneration(reservation.id);
+      const queueId = await queueReservationImageGeneration(reservation.id);
+      console.log(`✓ Queued reservation image generation: ${queueId}`);
     } catch (error) {
-      console.error("Failed to queue reservation image:", error);
+      console.error("❌ Failed to queue reservation image generation:", error);
+      console.error("Error details:", error);
       // Don't fail the reservation creation if queue fails
     }
   }
