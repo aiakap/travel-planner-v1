@@ -11,7 +11,7 @@
  */
 
 const ENDPOINT = 'http://localhost:3000/api/process-image-queue';
-const INTERVAL_MS = 1000; // 1 second
+const INTERVAL_MS = 60000; // 1 minute
 
 let iteration = 0;
 
