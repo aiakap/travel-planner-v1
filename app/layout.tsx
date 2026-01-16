@@ -14,9 +14,21 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+/* =======================================================================
+ * GOODBYE CTRL+ALT+DAD - January 2026
+ * -----------------------------------------------------------------------
+ * The name that started it all. What began as a playful dad-joke brand
+ * has evolved into something bigger. Thanks for the memories and the
+ * laughs, Ctrl+Alt+Dad. You were weird, wonderful, and uniquely ours.
+ * 
+ * Now we become Bespoke - crafted experiences for discerning travelers.
+ * But we'll never forget where we came from.
+ * 
+ * "Ctrl+Alt+Dad Trips" - 2024-2026 - Gone but not forgotten
+ * ======================================================================= */
 export const metadata: Metadata = {
   title: "Ctrl+Alt+Dad Trips",
-  description: "A 53-year-old dad's journey into coding - one trip at a time",
+  description: "AI-powered travel planning personalized to your style",
 };
 
 export default async function RootLayout({
