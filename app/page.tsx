@@ -1,148 +1,285 @@
 import React from "react";
-import { Map as MapIcon } from "lucide-react";
+import { Compass, Users, Sparkles, ArrowRight, Globe2, Heart, Star } from "lucide-react";
 import { auth } from "@/auth";
 import AuthButton from "@/components/auth-button";
+import Image from "next/image";
+import Link from "next/link";
 
 export default async function LandingPage() {
   const session = await auth();
   const isLoggedIn = !!session?.user;
+  const userName = session?.user?.name?.split(" ")[0];
+
+  /* =======================================================================
+   * FAREWELL CTRL+ALT+DAD - The Old Hero
+   * -----------------------------------------------------------------------
+   * From gradient chaos to refined elegance. The dad jokes are retired,
+   * but the spirit lives on.
+   * ======================================================================= */
 
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Main Content */}
-      <main className="flex-1">
-        {/* Hero Section */}
-        <section className="relative bg-gradient-to-br from-purple-100 via-pink-50 via-yellow-50 to-blue-100 py-24 md:py-40">
+    <div className="flex flex-col min-h-screen bg-white">
+      {/* Hero Section - Full Bleed */}
+      <section className="relative h-[85vh] overflow-hidden">
+        {/* Hero Image */}
+        <Image
+          src="/luxury-hotel-room.png"
+          alt="Bespoke Travel Experiences"
+          fill
+          className="object-cover"
+          priority
+        />
+        
+        {/* Overlay Gradient */}
+        <div 
+          className="absolute inset-0" 
+          style={{ background: 'var(--hero-overlay)' }}
+        />
+        
+        {/* Hero Content */}
+        <div className="relative z-10 h-full flex items-center">
           <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-5xl md:text-7xl font-bold mb-8">
-                <span className="bg-gradient-to-r from-red-500 via-orange-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 bg-clip-text text-transparent animate-pulse">
-                  🐻 Ctrl+Alt+Dad 💀
-                </span>
-                <br />
-                <span className="text-5xl md:text-6xl bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 bg-clip-text text-transparent">
-                  🌹 Trips 🌹
-                </span>
-              </h1>
-              <p className="text-2xl md:text-3xl text-gray-600 mb-6">
-                A 53-year-old dad learning to code, one trip at a time.
-              </p>
-              <p className="text-xl text-gray-500 mb-8 italic">
-                &quot;What a long, strange <code className="bg-gray-100 px-2 py-1 rounded text-lg">git push</code> it&apos;s been&quot; 🎸
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="max-w-3xl">
+              {isLoggedIn && userName ? (
+                <>
+                  <h1 className="text-5xl md:text-7xl font-display font-bold text-white mb-6 leading-tight">
+                    Welcome back, {userName}
+                  </h1>
+                  <p className="text-xl md:text-2xl text-white/90 mb-8">
+                    Your next extraordinary experience awaits
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h1 className="text-5xl md:text-7xl font-display font-bold text-white mb-6 leading-tight">
+                    Experiences Crafted for You
+                  </h1>
+                  <p className="text-xl md:text-2xl text-white/90 mb-8">
+                    Discover journeys curated by experts and shaped by people who travel like you
+                  </p>
+                </>
+              )}
+              
+              <div className="flex flex-col sm:flex-row gap-4">
                 <AuthButton
                   isLoggedIn={isLoggedIn}
-                  className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-xl px-8 py-4 rounded-xl transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl"
+                  className="inline-flex items-center justify-center gap-2 bg-white text-slate-900 hover:bg-slate-100 text-lg px-8 py-4 rounded-lg font-medium transition-smooth shadow-xl hover:shadow-2xl hover:scale-105"
                 >
                   {isLoggedIn ? (
-                    "Check it Out"
+                    <>
+                      Explore Trips
+                      <ArrowRight className="w-5 h-5" />
+                    </>
                   ) : (
                     <>
-                      <svg
-                        className="w-6 h-6"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                      >
-                        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58 0-.29-.01-1.04-.02-2.04-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.74.08-.74 1.2.09 1.83 1.24 1.83 1.24 1.07 1.84 2.81 1.31 3.5 1 .11-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.05.14 3.01.41 2.29-1.55 3.29-1.23 3.29-1.23.66 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.8 5.63-5.48 5.93.43.37.81 1.1.81 2.23 0 1.61-.02 2.91-.02 3.31 0 .32.22.69.83.57C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z" />
-                      </svg>
-                      <span className="ml-2">Log in</span>
+                      Get Started
+                      <ArrowRight className="w-5 h-5" />
                     </>
                   )}
                 </AuthButton>
+                
+                {!isLoggedIn && (
+                  <Link
+                    href="#how-it-works"
+                    className="inline-flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 text-lg px-8 py-4 rounded-lg font-medium transition-smooth border border-white/30"
+                  >
+                    Learn More
+                  </Link>
+                )}
               </div>
             </div>
           </div>
-          {/* Decorative Clipped Background at the Bottom */}
-          <div
-            className="absolute bottom-0 left-0 right-0 h-24 bg-white"
-            style={{ clipPath: "polygon(0 100%, 100% 100%, 100% 0, 0 100%)" }}
-          />
-        </section>
+        </div>
+      </section>
 
-        {/* Features Section */}
-        <section className="py-16 md:py-24 bg-white">
-          <div className="container mx-auto px-4">
-            <h2 className="text-4xl font-bold text-center mb-12">
-              Dad-approved features <span className="text-3xl">🐻💀🌹</span>
-            </h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="p-6 rounded-lg border border-gray-100 shadow-sm bg-white">
-                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-4">
-                  <MapIcon className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-2xl font-semibold mb-3">Interactive Maps</h3>
-                <p className="text-lg text-gray-600">
-                  Visualize your trip with interactive maps. See your entire
-                  itinerary at a glance.
-                </p>
+      {/* Features Grid */}
+      <section className="py-20 bg-slate-50">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-smooth">
+              <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center mb-4">
+                <Sparkles className="w-6 h-6 text-white" />
               </div>
-              <div className="p-6 rounded-lg border border-gray-100 shadow-sm bg-white">
-                <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mb-4">
-                  <svg
-                    className="h-6 w-6 text-travel-amber"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-semibold mb-3">
-                  Day-by-Day Itineraries
-                </h3>
-                <p className="text-lg text-gray-600">
-                  Organize your trip day by day. Never miss a beat with
-                  structured planning.
-                </p>
+              <h3 className="text-xl font-display font-bold mb-3">Personalized</h3>
+              <p className="text-slate-600">
+                AI-powered recommendations that adapt to your unique travel style and preferences
+              </p>
+            </div>
+            
+            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-smooth">
+              <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center mb-4">
+                <Users className="w-6 h-6 text-white" />
               </div>
-              <div className="p-6 rounded-lg border border-gray-100 shadow-sm bg-white">
-                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                  <svg
-                    className="h-6 w-6 text-green-500"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M3 15a4 4 0 004 4h9a5 5 0 10-4.5-6.5L12 7" />
-                    <path d="M15 5v4h4" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-semibold mb-3">
-                  Drag & Drop Planning
-                </h3>
-                <p className="text-lg text-gray-600">
-                  Easily rearrange your itinerary with simple drag and drop
-                  functionality.
-                </p>
+              <h3 className="text-xl font-display font-bold mb-3">Expert Curated</h3>
+              <p className="text-slate-600">
+                Experiences designed by travel experts and influencers who know destinations best
+              </p>
+            </div>
+            
+            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-smooth">
+              <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center mb-4">
+                <Compass className="w-6 h-6 text-white" />
               </div>
+              <h3 className="text-xl font-display font-bold mb-3">Effortlessly Organized</h3>
+              <p className="text-slate-600">
+                Keep every detail of your journey in one place, from flights to reservations
+              </p>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Call to Action Section */}
-        <section className="py-20 md:py-28 bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-              Ready to <code className="bg-gray-700 px-3 py-2 rounded text-green-400 text-3xl">git commit</code> to your next adventure? 🎸
+      {/* Travel with Your People Section */}
+      <section id="how-it-works" className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-display font-bold mb-4">
+              Travel with Your People
             </h2>
-            <p className="text-2xl text-blue-50 mb-8 max-w-2xl mx-auto">
-              Built by a dad who Googles &quot;how to center a div&quot; at least once a day. 🐻💀
+            <p className="text-xl text-slate-600">
+              Connect with fellow travelers, join group trips, and share unforgettable experiences
             </p>
-            <AuthButton
-              isLoggedIn={isLoggedIn}
-              className="inline-block bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 hover:from-yellow-500 hover:to-orange-600 text-xl font-bold px-10 py-5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
-            >
-              {isLoggedIn ? "🐻 Check it out 🐻" : "🌹 Sign Up Now 🌹"}
-            </AuthButton>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <div className="bg-slate-50 p-8 rounded-2xl hover:bg-slate-100 transition-smooth cursor-pointer group">
+              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-smooth">
+                <Users className="w-8 h-8 text-slate-900" />
+              </div>
+              <h3 className="text-xl font-display font-bold mb-2">Join Group Trips</h3>
+              <p className="text-slate-600">
+                Discover and join curated group experiences led by expert guides
+              </p>
+            </div>
+
+            <div className="bg-slate-50 p-8 rounded-2xl hover:bg-slate-100 transition-smooth cursor-pointer group">
+              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-smooth">
+                <Heart className="w-8 h-8 text-slate-900" />
+              </div>
+              <h3 className="text-xl font-display font-bold mb-2">Follow Curators</h3>
+              <p className="text-slate-600">
+                Get inspired by travel influencers and experts who share your interests
+              </p>
+            </div>
+
+            <div className="bg-slate-50 p-8 rounded-2xl hover:bg-slate-100 transition-smooth cursor-pointer group">
+              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-smooth">
+                <Globe2 className="w-8 h-8 text-slate-900" />
+              </div>
+              <h3 className="text-xl font-display font-bold mb-2">Create Your Own</h3>
+              <p className="text-slate-600">
+                Plan and share your own trips, inviting friends to join the adventure
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Curated by Experts Section */}
+      <section className="py-20 bg-slate-900 text-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-display font-bold mb-4">
+              Curated by Those Who Know
+            </h2>
+            <p className="text-xl text-white/80">
+              Learn from travelers, influencers, and local experts
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            {[
+              { name: "Curator One", specialty: "Luxury Escapes", image: "/curator-1.jpg" },
+              { name: "Curator Two", specialty: "Adventure Seeker", image: "/curator-2.jpg" },
+              { name: "Curator Three", specialty: "Wine Country Expert", image: "/curator-3.jpg" },
+              { name: "Curator Four", specialty: "Cultural Explorer", image: "/curator-4.jpg" },
+            ].map((curator, i) => (
+              <div key={i} className="text-center group cursor-pointer">
+                <div className="relative w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden ring-4 ring-white/10 group-hover:ring-white/30 transition-smooth">
+                  <div className="w-full h-full bg-slate-700 flex items-center justify-center">
+                    <Star className="w-12 h-12 text-white/50" />
+                  </div>
+                </div>
+                <h3 className="font-display font-bold text-lg mb-1">{curator.name}</h3>
+                <p className="text-sm text-white/60">{curator.specialty}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      {!isLoggedIn && (
+        <section className="py-20 bg-white">
+          <div className="container mx-auto px-4">
+            <div className="max-w-3xl mx-auto text-center">
+              <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
+                Ready to Begin?
+              </h2>
+              <p className="text-xl text-slate-600 mb-8">
+                Join thousands of travelers crafting their perfect journeys
+              </p>
+              <AuthButton
+                isLoggedIn={false}
+                className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-lg px-10 py-5 rounded-lg font-medium transition-smooth shadow-lg hover:shadow-xl hover:scale-105"
+              >
+                Get Started Free
+                <ArrowRight className="w-5 h-5" />
+              </AuthButton>
+            </div>
           </div>
         </section>
-      </main>
+      )}
 
       {/* Footer */}
+      <footer className="bg-slate-900 text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="flex flex-col mb-4">
+                <span className="text-2xl font-display tracking-wide">Bespoke</span>
+                <span className="text-xs uppercase tracking-[0.2em] text-white/60 -mt-1">
+                  Experiences
+                </span>
+              </div>
+              <p className="text-white/60 text-sm">
+                Personalized travel experiences crafted for you
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-display font-bold mb-4">Product</h3>
+              <ul className="space-y-2 text-sm text-white/60">
+                <li><Link href="/trips" className="hover:text-white transition-smooth">My Trips</Link></li>
+                <li><Link href="/globe" className="hover:text-white transition-smooth">Explore Globe</Link></li>
+                <li><Link href="/chat" className="hover:text-white transition-smooth">AI Chat</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-display font-bold mb-4">Company</h3>
+              <ul className="space-y-2 text-sm text-white/60">
+                <li><a href="#" className="hover:text-white transition-smooth">About</a></li>
+                <li><a href="#" className="hover:text-white transition-smooth">Blog</a></li>
+                <li><a href="#" className="hover:text-white transition-smooth">Careers</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-display font-bold mb-4">Legal</h3>
+              <ul className="space-y-2 text-sm text-white/60">
+                <li><a href="#" className="hover:text-white transition-smooth">Privacy</a></li>
+                <li><a href="#" className="hover:text-white transition-smooth">Terms</a></li>
+                <li><a href="#" className="hover:text-white transition-smooth">Contact</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-white/10 pt-8 text-center text-sm text-white/60">
+            <p>© {new Date().getFullYear()} Bespoke Experiences. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
