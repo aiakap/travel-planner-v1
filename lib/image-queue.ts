@@ -11,41 +11,70 @@ export async function queueImageGeneration(
   prompt: string,
   promptId?: string
 ): Promise<string> {
-  // Check if there's already a pending/in-progress job for this entity
-  const existingJob = await prisma.imageQueue.findFirst({
-    where: {
-      entityType,
-      entityId,
-      status: { in: ["waiting", "in_progress"] },
-    },
-  });
-
-  if (existingJob) {
-    // Update the existing job with new prompt
-    await prisma.imageQueue.update({
-      where: { id: existingJob.id },
-      data: {
-        prompt,
-        promptId,
-        updatedAt: new Date(),
+  console.log(`[queueImageGeneration] Starting - entityType: ${entityType}, entityId: ${entityId}`);
+  console.log(`[queueImageGeneration] Prompt length: ${prompt.length}, promptId: ${promptId}`);
+  
+  try {
+    // Check if there's already a pending/in-progress job for this entity
+    console.log(`[queueImageGeneration] Checking for existing job...`);
+    const existingJob = await prisma.imageQueue.findFirst({
+      where: {
+        entityType,
+        entityId,
+        status: { in: ["waiting", "in_progress"] },
       },
     });
-    return existingJob.id;
-  }
 
-  // Create new queue entry
-  const queueEntry = await prisma.imageQueue.create({
-    data: {
+    if (existingJob) {
+      console.log(`[queueImageGeneration] Found existing job: ${existingJob.id}, updating...`);
+      // Update the existing job with new prompt
+      await prisma.imageQueue.update({
+        where: { id: existingJob.id },
+        data: {
+          prompt,
+          promptId,
+          updatedAt: new Date(),
+        },
+      });
+      console.log(`[queueImageGeneration] Updated existing job: ${existingJob.id}`);
+      return existingJob.id;
+    }
+
+    // Create new queue entry
+    console.log(`[queueImageGeneration] No existing job found, creating new entry...`);
+    console.log(`[queueImageGeneration] Creating with data:`, {
       entityType,
       entityId,
-      prompt,
+      promptLength: prompt.length,
       promptId,
-      status: "waiting",
-      notes: `[${new Date().toISOString()}] Queued for processing`,
-    },
-  });
+      status: "waiting"
+    });
+    
+    const queueEntry = await prisma.imageQueue.create({
+      data: {
+        entityType,
+        entityId,
+        prompt,
+        promptId,
+        status: "waiting",
+        notes: `[${new Date().toISOString()}] Queued for processing`,
+      },
+    });
 
-  return queueEntry.id;
+    console.log(`[queueImageGeneration] ✓ Successfully created queue entry with ID: ${queueEntry.id}`);
+    console.log(`[queueImageGeneration] Entry details:`, {
+      id: queueEntry.id,
+      entityType: queueEntry.entityType,
+      entityId: queueEntry.entityId,
+      status: queueEntry.status
+    });
+    
+    return queueEntry.id;
+  } catch (error: any) {
+    console.error(`[queueImageGeneration] ❌ ERROR:`, error.message);
+    console.error(`[queueImageGeneration] Stack:`, error.stack);
+    throw error;
+  }
 }
 
 /**
