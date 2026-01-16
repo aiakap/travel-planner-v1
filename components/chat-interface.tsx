@@ -6,10 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Send, Loader2, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { generateGetLuckyPrompt } from "@/lib/ai/get-lucky-prompts";
+import { UserPersonalizationData, ChatQuickAction, getHobbyBasedDestination, getPreferenceBudgetLevel } from "@/lib/personalization";
+import { ChatWelcomeMessage } from "@/components/chat-welcome-message";
+import { ChatQuickActions } from "@/components/chat-quick-actions";
 
 interface ChatInterfaceProps {
   conversationId: string;
   initialMessages?: UIMessage[];
+  profileData?: UserPersonalizationData | null;
+  quickActions?: ChatQuickAction[];
 }
 
 // Helper to extract text content from message parts
@@ -31,6 +36,8 @@ function getToolInvocations(message: UIMessage) {
 export default function ChatInterface({
   conversationId,
   initialMessages = [],
+  profileData = null,
+  quickActions = [],
 }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
 
@@ -48,11 +55,28 @@ export default function ChatInterface({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Handle "Get Lucky" button click
+  // Handle "Get Lucky" button click - now shows plan before creating
   const handleGetLucky = () => {
     if (isLoading) return;
-    const luckyPrompt = generateGetLuckyPrompt();
-    sendMessage({ text: luckyPrompt });
+    
+    // Generate profile-aware lucky prompt
+    const destination = profileData 
+      ? getHobbyBasedDestination(profileData.hobbies) 
+      : null;
+    const budgetLevel = profileData 
+      ? getPreferenceBudgetLevel(profileData.preferences) 
+      : 'moderate';
+    
+    const luckyPrompt = generateGetLuckyPrompt(destination, budgetLevel);
+    
+    // Bot will show the plan and ask for confirmation
+    const confirmationMessage = `🎲 I'm thinking of creating this trip for you:
+
+${luckyPrompt}
+
+What would you like to change about this plan? Or should I go ahead and create it?`;
+    
+    sendMessage({ text: confirmationMessage });
   };
 
   return (
@@ -60,25 +84,37 @@ export default function ChatInterface({
       {/* Messages Container */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && (
-          <div className="text-center text-gray-500 mt-8">
-            <p className="text-lg font-medium mb-2">
-              👋 Hi! I&apos;m your AI travel planning assistant
-            </p>
-            <p className="text-sm mb-6">
-              Tell me about your dream trip and I&apos;ll help you plan it!
-            </p>
+          <div className="space-y-6 max-w-3xl mx-auto mt-4">
+            {/* Personalized Welcome Message */}
+            <ChatWelcomeMessage
+              userName={profileData?.profile?.firstName || undefined}
+              hobbies={profileData?.hobbies.map(h => h.hobby.name) || []}
+              recentTrips={profileData?.recentTrips || []}
+            />
             
-            {/* Get Lucky Button - prominent when no messages */}
-            <Button
-              onClick={handleGetLucky}
-              disabled={isLoading}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              <Sparkles className="h-5 w-5 mr-2" />
-              Get Lucky ✨
-            </Button>
-            <p className="text-xs text-gray-400 mt-3">
-              Generate a random dream trip with a complete itinerary!
+            {/* Quick Action Buttons */}
+            {quickActions.length > 0 && (
+              <ChatQuickActions
+                suggestions={quickActions}
+                onSelect={(prompt) => {
+                  sendMessage({ text: prompt });
+                }}
+              />
+            )}
+            
+            {/* Get Lucky Button */}
+            <div className="flex justify-center">
+              <Button
+                onClick={handleGetLucky}
+                disabled={isLoading}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <Sparkles className="h-5 w-5 mr-2" />
+                Get Lucky ✨
+              </Button>
+            </div>
+            <p className="text-xs text-gray-400 text-center">
+              I'll show you a trip plan and you can modify it before I create it!
             </p>
           </div>
         )}

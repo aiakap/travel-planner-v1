@@ -4,6 +4,7 @@ import ChatInterface from "@/components/chat-interface";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { getUserPersonalizationData, generateChatQuickActions } from "@/lib/personalization";
 
 export default async function ConversationPage({
   params,
@@ -21,6 +22,16 @@ export default async function ConversationPage({
 
   if (!conversation) {
     return <div>Conversation not found.</div>;
+  }
+
+  // Load user profile data for personalization
+  let profileData = null;
+  let quickActions = [];
+  try {
+    profileData = await getUserPersonalizationData(session.user.id);
+    quickActions = generateChatQuickActions(profileData);
+  } catch (error) {
+    console.error("Error loading profile data:", error);
   }
 
   // Convert messages to format expected by useChat
@@ -49,6 +60,8 @@ export default async function ConversationPage({
         <ChatInterface
           conversationId={conversationId}
           initialMessages={initialMessages}
+          profileData={profileData}
+          quickActions={quickActions}
         />
       </div>
     </div>

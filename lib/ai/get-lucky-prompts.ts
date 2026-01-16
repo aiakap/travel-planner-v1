@@ -93,11 +93,34 @@ function getUpcomingDates(daysAhead: number = 30): { startDate: string; endDate:
   };
 }
 
-export function generateGetLuckyPrompt(): string {
-  const destination = getRandomItem(destinations);
+export function generateGetLuckyPrompt(
+  preferredDestination: string | null = null,
+  budgetLevel: 'budget' | 'moderate' | 'luxury' = 'moderate'
+): string {
+  // Use preferred destination from profile or random
+  let destination;
+  if (preferredDestination) {
+    const matchingDest = destinations.find(d => 
+      d.name.toLowerCase().includes(preferredDestination.toLowerCase())
+    );
+    destination = matchingDest || getRandomItem(destinations);
+  } else {
+    destination = getRandomItem(destinations);
+  }
+  
   const { startDate, endDate, duration } = getUpcomingDates();
   const theme = getRandomItem(themes);
-  const budget = getRandomItem(budgets);
+  
+  // Use budget based on profile preferences
+  let budget;
+  if (budgetLevel === 'budget') {
+    budget = budgets[0]; // budget-friendly
+  } else if (budgetLevel === 'luxury') {
+    budget = budgets[3]; // luxury
+  } else {
+    budget = budgets[1]; // moderate
+  }
+  
   const traveler = getRandomItem(travelers);
   
   const prompt = `🎲 **Get Lucky Trip Request**

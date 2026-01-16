@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
@@ -99,7 +99,10 @@ export async function updateUserProfile(data: {
     },
   });
 
+  // Invalidate cache
+  revalidateTag(`user-profile-${session.user.id}`);
   revalidatePath("/profile");
+  revalidatePath("/"); // Homepage
   return profile;
 }
 
@@ -134,6 +137,7 @@ export async function addContact(data: {
     },
   });
 
+  revalidateTag(`user-profile-${session.user.id}`);
   revalidatePath("/profile");
   return contact;
 }
@@ -175,6 +179,7 @@ export async function updateContact(contactId: string, data: {
     data,
   });
 
+  revalidateTag(`user-profile-${session.user.id}`);
   revalidatePath("/profile");
   return contact;
 }
@@ -198,6 +203,7 @@ export async function deleteContact(contactId: string) {
     where: { id: contactId },
   });
 
+  revalidateTag(`user-profile-${session.user.id}`);
   revalidatePath("/profile");
 }
 
@@ -216,7 +222,9 @@ export async function addHobby(hobbyId: string, level?: string) {
     },
   });
 
+  revalidateTag(`user-profile-${session.user.id}`);
   revalidatePath("/profile");
+  revalidatePath("/"); // Homepage
   return userHobby;
 }
 
@@ -240,7 +248,9 @@ export async function updateHobbyLevel(userHobbyId: string, level: string) {
     data: { level },
   });
 
+  revalidateTag(`user-profile-${session.user.id}`);
   revalidatePath("/profile");
+  revalidatePath("/"); // Homepage
   return userHobby;
 }
 
@@ -263,7 +273,9 @@ export async function removeHobby(userHobbyId: string) {
     where: { id: userHobbyId },
   });
 
+  revalidateTag(`user-profile-${session.user.id}`);
   revalidatePath("/profile");
+  revalidatePath("/"); // Homepage
 }
 
 // Travel Preference actions
@@ -288,7 +300,9 @@ export async function setTravelPreference(preferenceTypeId: string, optionId: st
     },
   });
 
+  revalidateTag(`user-profile-${session.user.id}`);
   revalidatePath("/profile");
+  revalidatePath("/"); // Homepage
   return preference;
 }
 
@@ -305,7 +319,9 @@ export async function removeTravelPreference(preferenceTypeId: string) {
     },
   });
 
+  revalidateTag(`user-profile-${session.user.id}`);
   revalidatePath("/profile");
+  revalidatePath("/"); // Homepage
 }
 
 // Relationship actions
@@ -331,7 +347,9 @@ export async function addRelationship(data: {
     },
   });
 
+  revalidateTag(`user-profile-${session.user.id}`);
   revalidatePath("/profile");
+  revalidatePath("/"); // Homepage
   return relationship;
 }
 
@@ -359,7 +377,9 @@ export async function updateRelationship(relationshipId: string, data: {
     data,
   });
 
+  revalidateTag(`user-profile-${session.user.id}`);
   revalidatePath("/profile");
+  revalidatePath("/"); // Homepage
   return relationship;
 }
 
@@ -382,7 +402,9 @@ export async function deleteRelationship(relationshipId: string) {
     where: { id: relationshipId },
   });
 
+  revalidateTag(`user-profile-${session.user.id}`);
   revalidatePath("/profile");
+  revalidatePath("/"); // Homepage
 }
 
 // Get lookup data for forms
