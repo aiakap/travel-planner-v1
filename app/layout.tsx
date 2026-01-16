@@ -22,18 +22,6 @@ const inter = Inter({
   display: "swap",
 });
 
-/* =======================================================================
- * GOODBYE CTRL+ALT+DAD - January 2026
- * -----------------------------------------------------------------------
- * The name that started it all. What began as a playful dad-joke brand
- * has evolved into something bigger. Thanks for the memories and the
- * laughs, Ctrl+Alt+Dad. You were weird, wonderful, and uniquely ours.
- * 
- * Now we become Bespoke - crafted experiences for discerning travelers.
- * But we'll never forget where we came from.
- * 
- * "Ctrl+Alt+Dad Trips" - 2024-2026 - Gone but not forgotten
- * ======================================================================= */
 export const metadata: Metadata = {
   title: "Bespoke | Experiences Crafted for You",
   description: "Personalized travel experiences curated by experts and shaped by your community",

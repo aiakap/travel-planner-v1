@@ -9,20 +9,6 @@ export default function Navbar({ session }: { session: Session | null }) {
     <nav className="bg-white/95 backdrop-blur-sm shadow-sm py-4 border-b border-slate-100 sticky top-0 z-50 transition-smooth">
       <div className="container mx-auto flex justify-between items-center px-6 lg:px-8">
         <Link href={"/"} className="flex flex-col hover:opacity-80 transition-smooth">
-          {/* =======================================================================
-           * GOODBYE CTRL+ALT+DAD - January 2026
-           * -----------------------------------------------------------------------
-           * You served us well, old friend. From your rainbow gradients to your
-           * pulsing animations, from the bear emoji to the skull and rose - you
-           * were the original vibe. But now it's time for something more refined.
-           * 
-           * Rest in peace, Ctrl+Alt+Dad. You will be remembered fondly as the
-           * quirky prototype that started it all. May your rainbow colors shine
-           * on in developer heaven.
-           * 
-           * 🐻 Ctrl + Alt + Dad 💀🌹
-           * 2024 - 2026
-           * ======================================================================= */}
           <span className="text-2xl font-display tracking-wide text-slate-900">
             Bespoke
           </span>

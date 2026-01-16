@@ -10,13 +10,6 @@ export default async function LandingPage() {
   const isLoggedIn = !!session?.user;
   const userName = session?.user?.name?.split(" ")[0];
 
-  /* =======================================================================
-   * FAREWELL CTRL+ALT+DAD - The Old Hero
-   * -----------------------------------------------------------------------
-   * From gradient chaos to refined elegance. The dad jokes are retired,
-   * but the spirit lives on.
-   * ======================================================================= */
-
   return (
     <div className="flex flex-col min-h-screen bg-white">
       {/* Hero Section - Full Bleed */}
