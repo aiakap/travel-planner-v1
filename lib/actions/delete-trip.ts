@@ -3,7 +3,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 export async function deleteTrip(tripId: string) {
   const session = await auth();
@@ -23,18 +22,15 @@ export async function deleteTrip(tripId: string) {
     throw new Error("Trip not found or unauthorized");
   }
 
-  // Delete all segments and their reservations (cascade should handle reservations)
-  await prisma.segment.deleteMany({
-    where: { tripId },
-  });
-
+  // Cascade delete will automatically delete segments and their reservations
   await prisma.trip.delete({
     where: { id: tripId },
   });
 
   revalidatePath("/trips");
   revalidatePath("/manage");
-  redirect("/manage");
+  
+  return { success: true };
 }
 
 

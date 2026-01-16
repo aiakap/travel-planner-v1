@@ -9,7 +9,7 @@ import {
   ReservationCategory,
   ReservationStatus,
 } from "@/app/generated/prisma";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import {
   Plus,
   Pencil,
@@ -120,6 +120,15 @@ export default function ManageClient({
     segmentId?: string;
   } | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
+
+  // Close dialog after transition completes and UI updates
+  useEffect(() => {
+    if (!isPending && deleteSuccess) {
+      setDeleteDialog(null);
+      setDeleteSuccess(false);
+    }
+  }, [isPending, deleteSuccess]);
 
   const toggleTrip = (tripId: string) => {
     setExpandedTrips((prev) => {
@@ -145,7 +154,7 @@ export default function ManageClient({
     });
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!deleteDialog) return;
 
     startTransition(async () => {
@@ -157,9 +166,12 @@ export default function ManageClient({
         } else if (deleteDialog.type === "reservation") {
           await deleteReservation(deleteDialog.id);
         }
-        setDeleteDialog(null);
+        // Mark as successful - dialog will close after transition completes
+        setDeleteSuccess(true);
       } catch (error) {
         console.error("Delete failed:", error);
+        // Close dialog immediately on error
+        setDeleteDialog(null);
       }
     });
   };

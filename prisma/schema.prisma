@@ -107,7 +107,7 @@ model Segment {
   endTime DateTime?
   segmentTypeId String
   segmentType SegmentType @relation(fields: [segmentTypeId], references: [id])
-  trip Trip @relation(fields: [tripId], references: [id])
+  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
   tripId String
   order Int @default(0)
   reservations Reservation[]

@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "prisma db seed"
+    "seed": "prisma db seed",
+    "check-orphaned": "ts-node --project tsconfig.json scripts/check-orphaned-records.ts",
+    "cleanup-orphaned": "ts-node --project tsconfig.json scripts/cleanup-orphaned-records.ts"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
