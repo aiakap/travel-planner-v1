@@ -1,10 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { addHobby, removeHobby, updateHobbyLevel } from "@/lib/actions/profile-actions";
-import { Plus, X } from "lucide-react";
+import { addHobby, removeHobby } from "@/lib/actions/profile-actions";
 
 interface HobbiesSectionProps {
   initialHobbies: any[];
@@ -13,43 +10,49 @@ interface HobbiesSectionProps {
 
 export function HobbiesSection({ initialHobbies, availableHobbies }: HobbiesSectionProps) {
   const [userHobbies, setUserHobbies] = useState(initialHobbies);
-  const [isAdding, setIsAdding] = useState(false);
 
   const selectedHobbyIds = new Set(userHobbies.map(uh => uh.hobbyId));
-  const availableToAdd = availableHobbies.filter(h => !selectedHobbyIds.has(h.id));
 
-  // Group by category
-  const groupedAvailable = availableToAdd.reduce((acc, hobby) => {
+  // Group all hobbies by category
+  const groupedHobbies = availableHobbies.reduce((acc, hobby) => {
     const category = hobby.category || "other";
     if (!acc[category]) acc[category] = [];
     acc[category].push(hobby);
     return acc;
   }, {} as Record<string, any[]>);
 
-  const groupedUserHobbies = userHobbies.reduce((acc, uh) => {
-    const category = uh.hobby.category || "other";
-    if (!acc[category]) acc[category] = [];
-    acc[category].push(uh);
-    return acc;
-  }, {} as Record<string, any[]>);
-
-  const handleAddHobby = async (hobbyId: string) => {
-    try {
-      const added = await addHobby(hobbyId);
-      const hobby = availableHobbies.find(h => h.id === hobbyId);
-      setUserHobbies([...userHobbies, { ...added, hobby }]);
-      setIsAdding(false);
-    } catch (error) {
-      console.error("Error adding hobby:", error);
-    }
-  };
-
-  const handleRemoveHobby = async (userHobbyId: string) => {
-    try {
-      await removeHobby(userHobbyId);
-      setUserHobbies(userHobbies.filter(uh => uh.id !== userHobbyId));
-    } catch (error) {
-      console.error("Error removing hobby:", error);
+  const handleToggleHobby = async (hobby: any, isSelected: boolean) => {
+    // Optimistically update UI first
+    if (isSelected) {
+      // Remove hobby
+      const userHobby = userHobbies.find(uh => uh.hobbyId === hobby.id);
+      if (userHobby) {
+        setUserHobbies(userHobbies.filter(uh => uh.id !== userHobby.id));
+        try {
+          await removeHobby(userHobby.id);
+        } catch (error) {
+          console.error("Error removing hobby:", error);
+          // Revert on error
+          setUserHobbies([...userHobbies, userHobby]);
+        }
+      }
+    } else {
+      // Add hobby - create temporary entry
+      const tempId = `temp-${hobby.id}`;
+      const tempEntry = { id: tempId, hobbyId: hobby.id, hobby, userId: "", level: null, createdAt: new Date() };
+      setUserHobbies([...userHobbies, tempEntry]);
+      
+      try {
+        const added = await addHobby(hobby.id);
+        // Replace temp entry with real one
+        setUserHobbies(current => 
+          current.map(uh => uh.id === tempId ? { ...added, hobby } : uh)
+        );
+      } catch (error) {
+        console.error("Error adding hobby:", error);
+        // Remove temp entry on error
+        setUserHobbies(current => current.filter(uh => uh.id !== tempId));
+      }
     }
   };
 
@@ -65,59 +68,44 @@ export function HobbiesSection({ initialHobbies, availableHobbies }: HobbiesSect
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold">Hobbies & Interests</h2>
-        <Button onClick={() => setIsAdding(!isAdding)} size="sm">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Hobby
-        </Button>
+      <div>
+        <h2 className="text-2xl font-semibold mb-2">Hobbies & Interests</h2>
+        <p className="text-gray-600">Select all hobbies and activities you enjoy.</p>
       </div>
 
-      {isAdding && (
-        <div className="p-4 border rounded-lg space-y-4 bg-gray-50">
-          <h3 className="font-semibold">Select Hobbies to Add</h3>
-          {Object.entries(groupedAvailable).map(([category, hobbies]) => (
-            <div key={category} className="space-y-2">
-              <h4 className="text-sm font-medium text-gray-700">{categoryLabels[category] || category}</h4>
-              <div className="flex flex-wrap gap-2">
-                {hobbies.map((hobby: any) => (
-                  <Badge
+      <div className="space-y-6">
+        {Object.entries(groupedHobbies).map(([category, hobbies]) => (
+          <div key={category} className="space-y-3">
+            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+              {categoryLabels[category] || category}
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {hobbies.map((hobby: any) => {
+                const isSelected = selectedHobbyIds.has(hobby.id);
+                return (
+                  <label
                     key={hobby.id}
-                    variant="outline"
-                    className="cursor-pointer hover:bg-blue-100"
-                    onClick={() => handleAddHobby(hobby.id)}
+                    className={`flex items-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                      isSelected
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                    }`}
                   >
-                    {hobby.name} <Plus className="w-3 h-3 ml-1" />
-                  </Badge>
-                ))}
-              </div>
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => handleToggleHobby(hobby, isSelected)}
+                      className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                    />
+                    <span className={`text-sm ${isSelected ? "font-medium text-blue-900" : "text-gray-700"}`}>
+                      {hobby.name}
+                    </span>
+                  </label>
+                );
+              })}
             </div>
-          ))}
-        </div>
-      )}
-
-      <div className="space-y-4">
-        {Object.keys(groupedUserHobbies).length === 0 ? (
-          <p className="text-gray-500 text-center py-8">No hobbies selected yet.</p>
-        ) : (
-          Object.entries(groupedUserHobbies).map(([category, hobbies]) => (
-            <div key={category} className="space-y-2">
-              <h3 className="text-sm font-semibold text-gray-700">{categoryLabels[category] || category}</h3>
-              <div className="flex flex-wrap gap-2">
-                {hobbies.map((userHobby: any) => (
-                  <Badge
-                    key={userHobby.id}
-                    variant="default"
-                    className="cursor-pointer hover:bg-red-100 hover:text-red-700"
-                    onClick={() => handleRemoveHobby(userHobby.id)}
-                  >
-                    {userHobby.hobby.name} <X className="w-3 h-3 ml-1" />
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          ))
-        )}
+          </div>
+        ))}
       </div>
     </div>
   );

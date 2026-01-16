@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { PersonalInfoSection } from "@/components/profile/personal-info-section";
 import { ContactsSection } from "@/components/profile/contacts-section";
@@ -39,60 +37,42 @@ export function ProfileClient({
   travelPreferenceTypes,
 }: ProfileClientProps) {
   return (
-    <Tabs defaultValue="personal" className="w-full">
-      <TabsList className="grid w-full grid-cols-5">
-        <TabsTrigger value="personal">Personal Info</TabsTrigger>
-        <TabsTrigger value="contacts">Contacts</TabsTrigger>
-        <TabsTrigger value="hobbies">Hobbies</TabsTrigger>
-        <TabsTrigger value="preferences">Travel Preferences</TabsTrigger>
-        <TabsTrigger value="relationships">Relationships</TabsTrigger>
-      </TabsList>
+    <div className="space-y-8">
+      <Card className="p-6">
+        <PersonalInfoSection
+          userName={userName}
+          userEmail={userEmail}
+          userImage={userImage}
+          initialProfile={initialProfile}
+        />
+      </Card>
 
-      <TabsContent value="personal">
-        <Card className="p-6">
-          <PersonalInfoSection
-            userName={userName}
-            userEmail={userEmail}
-            userImage={userImage}
-            initialProfile={initialProfile}
-          />
-        </Card>
-      </TabsContent>
+      <Card className="p-6">
+        <ContactsSection
+          initialContacts={initialContacts}
+          contactTypes={contactTypes}
+        />
+      </Card>
 
-      <TabsContent value="contacts">
-        <Card className="p-6">
-          <ContactsSection
-            initialContacts={initialContacts}
-            contactTypes={contactTypes}
-          />
-        </Card>
-      </TabsContent>
+      <Card className="p-6">
+        <HobbiesSection
+          initialHobbies={initialHobbies}
+          availableHobbies={hobbies}
+        />
+      </Card>
 
-      <TabsContent value="hobbies">
-        <Card className="p-6">
-          <HobbiesSection
-            initialHobbies={initialHobbies}
-            availableHobbies={hobbies}
-          />
-        </Card>
-      </TabsContent>
+      <Card className="p-6">
+        <TravelPreferencesSection
+          initialPreferences={initialTravelPreferences}
+          preferenceTypes={travelPreferenceTypes}
+        />
+      </Card>
 
-      <TabsContent value="preferences">
-        <Card className="p-6">
-          <TravelPreferencesSection
-            initialPreferences={initialTravelPreferences}
-            preferenceTypes={travelPreferenceTypes}
-          />
-        </Card>
-      </TabsContent>
-
-      <TabsContent value="relationships">
-        <Card className="p-6">
-          <RelationshipsSection
-            initialRelationships={initialRelationships}
-          />
-        </Card>
-      </TabsContent>
-    </Tabs>
+      <Card className="p-6">
+        <RelationshipsSection
+          initialRelationships={initialRelationships}
+        />
+      </Card>
+    </div>
   );
 }
