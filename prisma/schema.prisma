@@ -81,6 +81,9 @@ model Trip {
   title String
   description String
   imageUrl String?
+  imageIsCustom Boolean @default(false)
+  imagePromptId String?
+  imagePrompt ImagePrompt? @relation(fields: [imagePromptId], references: [id])
   startDate DateTime
   endDate DateTime
   user User @relation(fields: [userId], references: [id] )
@@ -96,6 +99,7 @@ model Segment {
   id String @id @default(cuid())
   name String
   imageUrl String?
+  imageIsCustom Boolean @default(false)
   startTitle String
   startLat Float
   startLng Float
@@ -164,6 +168,7 @@ model Reservation {
   location String?
   url String?
   imageUrl String?
+  imageIsCustom Boolean @default(false)
   // Flight-specific fields (nullable for non-flight reservations)
   departureLocation String?
   departureTimezone String?  // IANA timezone, e.g., "America/New_York"
@@ -198,8 +203,28 @@ model ImagePrompt {
   name String @unique
   prompt String @db.Text
   category String // "trip", "segment", "reservation"
+  style String?
+  lightness String?
+  trips Trip[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model ImageQueue {
+  id         String   @id @default(cuid())
+  entityType String   // "trip", "segment", "reservation"
+  entityId   String   // ID of the trip/segment/reservation
+  prompt     String   @db.Text // Full assembled prompt for DALL-E
+  status     String   @default("waiting") // "waiting", "in_progress", "failed", "completed"
+  notes      String?  @db.Text // Log of processing steps, timestamps, errors
+  imageUrl   String?  // Final image URL when completed
+  attempts   Int      @default(0) // Number of processing attempts
+  promptId   String?  // Optional reference to ImagePrompt used
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([status, createdAt]) // For efficient queue processing
+  @@index([entityType, entityId]) // For looking up by entity
 }
 
 // User Profile Models

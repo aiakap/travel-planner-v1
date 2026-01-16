@@ -54,18 +54,17 @@ export function DashboardPage({
   userName,
   segmentTimeZones,
 }: DashboardPageProps) {
-  // Find next upcoming trip
+  // Find all upcoming trips sorted by date
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const upcomingTrips = trips
     .filter((trip) => new Date(trip.startDate) >= today)
     .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
-  const nextTrip = upcomingTrips.length > 0 ? upcomingTrips[0] : null;
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <DashboardHero nextTrip={nextTrip} userName={userName} />
+      {/* Hero Section - Carousel through upcoming trips */}
+      <DashboardHero upcomingTrips={upcomingTrips} userName={userName} />
 
       {/* Travel Stats */}
       <TravelStatsGrid stats={stats} />

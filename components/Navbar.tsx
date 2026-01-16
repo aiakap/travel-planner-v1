@@ -4,7 +4,11 @@ import { login, logout } from "@/lib/auth-actions";
 import { Session } from "next-auth";
 import Link from "next/link";
 
-export default function Navbar({ session }: { session: Session | null }) {
+interface NavbarProps {
+  session: Session | null;
+}
+
+export default function Navbar({ session }: NavbarProps) {
   return (
     <nav className="bg-white/95 backdrop-blur-sm shadow-sm py-4 border-b border-slate-100 sticky top-0 z-50 transition-smooth">
       <div className="container mx-auto flex justify-between items-center px-6 lg:px-8">

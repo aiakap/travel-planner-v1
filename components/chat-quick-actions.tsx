@@ -13,22 +13,17 @@ export function ChatQuickActions({ suggestions, onSelect }: ChatQuickActionsProp
   }
 
   return (
-    <div className="space-y-3">
-      <p className="text-sm font-medium text-slate-600">Quick actions for you:</p>
+    <div className="max-w-2xl mx-auto space-y-3">
+      <p className="text-sm text-slate-400">Suggestions</p>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="space-y-2">
         {suggestions.map((suggestion) => (
           <button
             key={suggestion.id}
             onClick={() => onSelect(suggestion.prompt)}
-            className="group flex items-start gap-3 p-4 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl transition-all duration-200 text-left hover:shadow-md"
+            className="w-full text-left px-4 py-3 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-lg transition-colors duration-150 text-sm text-slate-700 hover:text-slate-900"
           >
-            <span className="text-2xl flex-shrink-0">{suggestion.icon}</span>
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-slate-900 group-hover:text-slate-700 text-sm">
-                {suggestion.label}
-              </p>
-            </div>
+            {suggestion.label}
           </button>
         ))}
       </div>

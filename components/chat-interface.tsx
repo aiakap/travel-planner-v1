@@ -3,7 +3,7 @@
 import { useChat } from "@ai-sdk/react";
 import { UIMessage } from "ai";
 import { Button } from "@/components/ui/button";
-import { Send, Loader2, Sparkles } from "lucide-react";
+import { Send, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { generateGetLuckyPrompt } from "@/lib/ai/get-lucky-prompts";
 import { UserPersonalizationData, ChatQuickAction, getHobbyBasedDestination, getPreferenceBudgetLevel } from "@/lib/personalization";
@@ -70,21 +70,21 @@ export default function ChatInterface({
     const luckyPrompt = generateGetLuckyPrompt(destination, budgetLevel);
     
     // Bot will show the plan and ask for confirmation
-    const confirmationMessage = `🎲 I'm thinking of creating this trip for you:
+    const confirmationMessage = `I have a trip idea for you:
 
 ${luckyPrompt}
 
-What would you like to change about this plan? Or should I go ahead and create it?`;
+What would you like to change about this plan, or should I create it as is?`;
     
     sendMessage({ text: confirmationMessage });
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-12rem)]">
+    <div className="flex flex-col h-[calc(100vh-12rem)] bg-white">
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {messages.length === 0 && (
-          <div className="space-y-6 max-w-3xl mx-auto mt-4">
+          <div className="space-y-8">
             {/* Personalized Welcome Message */}
             <ChatWelcomeMessage
               userName={profileData?.profile?.firstName || undefined}
@@ -102,20 +102,19 @@ What would you like to change about this plan? Or should I go ahead and create i
               />
             )}
             
-            {/* Get Lucky Button */}
-            <div className="flex justify-center">
-              <Button
+            {/* Surprise Me Button - Minimal Style */}
+            <div className="max-w-2xl mx-auto mt-6">
+              <button
                 onClick={handleGetLucky}
                 disabled={isLoading}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+                className="w-full px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white text-sm rounded-lg transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Sparkles className="h-5 w-5 mr-2" />
-                Get Lucky ✨
-              </Button>
+                Surprise me with a trip idea
+              </button>
+              <p className="text-xs text-slate-400 text-center mt-2">
+                I'll show you a plan that you can adjust before creating
+              </p>
             </div>
-            <p className="text-xs text-gray-400 text-center">
-              I'll show you a trip plan and you can modify it before I create it!
-            </p>
           </div>
         )}
 
@@ -131,20 +130,20 @@ What would you like to change about this plan? Or should I go ahead and create i
               }`}
             >
               <div
-                className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                className={`max-w-[70%] rounded-lg px-5 py-3 ${
                   message.role === "user"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-900"
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-50 text-slate-900 border border-slate-100"
                 }`}
               >
-                <div className="whitespace-pre-wrap">{textContent}</div>
+                <div className="whitespace-pre-wrap leading-relaxed">{textContent}</div>
 
                 {/* Show tool calls if present */}
                 {toolInvocations.length > 0 && (
-                  <div className="mt-2 text-xs opacity-75 border-t border-gray-300 pt-2">
+                  <div className="mt-3 text-xs opacity-60 border-t border-current/10 pt-2 space-y-1">
                     {toolInvocations.map((tool, idx) => (
-                      <div key={idx} className="mb-1">
-                        ✓ {tool.toolInvocation.toolName === "create_trip" && "Created trip"}
+                      <div key={idx}>
+                        {tool.toolInvocation.toolName === "create_trip" && "Created trip"}
                         {tool.toolInvocation.toolName === "add_segment" && "Added segment"}
                         {tool.toolInvocation.toolName === "suggest_reservation" &&
                           "Added reservation"}
@@ -160,9 +159,9 @@ What would you like to change about this plan? Or should I go ahead and create i
 
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-gray-100 rounded-lg px-4 py-2 flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span className="text-sm text-gray-600">Thinking...</span>
+            <div className="bg-slate-50 rounded-lg px-5 py-3 flex items-center gap-2 border border-slate-100">
+              <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+              <span className="text-sm text-slate-500">Thinking...</span>
             </div>
           </div>
         )}
@@ -171,7 +170,7 @@ What would you like to change about this plan? Or should I go ahead and create i
       </div>
 
       {/* Input Form */}
-      <div className="border-t p-4 bg-white">
+      <div className="border-t border-slate-200 p-6 bg-white">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -180,28 +179,20 @@ What would you like to change about this plan? Or should I go ahead and create i
               setInput("");
             }
           }}
-          className="flex gap-2"
+          className="flex gap-3 max-w-4xl mx-auto"
         >
-          {/* Get Lucky button (compact version) */}
-          <Button
-            type="button"
-            onClick={handleGetLucky}
-            disabled={isLoading}
-            variant="outline"
-            className="border-purple-300 text-purple-600 hover:bg-purple-50 hover:border-purple-400"
-            title="Generate a random dream trip!"
-          >
-            <Sparkles className="h-4 w-4" />
-          </Button>
-          
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Describe your dream trip..."
-            className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Describe your trip..."
+            className="flex-1 border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-slate-400 focus:border-slate-400 text-slate-900 placeholder:text-slate-400"
             disabled={isLoading}
           />
-          <Button type="submit" disabled={isLoading || !input.trim()}>
+          <Button 
+            type="submit" 
+            disabled={isLoading || !input.trim()}
+            className="bg-slate-900 hover:bg-slate-800 text-white px-6"
+          >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
@@ -210,8 +201,8 @@ What would you like to change about this plan? Or should I go ahead and create i
           </Button>
         </form>
         {error && (
-          <div className="mt-2 text-sm text-red-600">
-            Error: {error.message}
+          <div className="mt-3 text-sm text-red-600 max-w-4xl mx-auto">
+            {error.message}
           </div>
         )}
       </div>

@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { generateAndUploadImage } from "@/lib/image-generation";
 
 async function geocodeAddress(address: string) {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY!;
@@ -47,12 +48,12 @@ export async function updateSegment(segmentId: string, formData: FormData) {
     );
   }
 
-  const segment = await prisma.segment.findFirst({
+  const existingSegment = await prisma.segment.findFirst({
     where: { id: segmentId, trip: { userId: session.user?.id } },
-    select: { id: true, tripId: true },
+    include: { segmentType: true, trip: true },
   });
 
-  if (!segment) {
+  if (!existingSegment) {
     throw new Error("Segment not found");
   }
 
@@ -61,23 +62,61 @@ export async function updateSegment(segmentId: string, formData: FormData) {
     geocodeAddress(endAddress),
   ]);
 
+  // Check if relevant fields changed
+  const relevantFieldsChanged =
+    name !== existingSegment.name ||
+    notes !== existingSegment.notes ||
+    startGeo.formatted !== existingSegment.startTitle ||
+    endGeo.formatted !== existingSegment.endTitle;
+
+  // Prepare update data
+  const updateData: any = {
+    name,
+    startTitle: startGeo.formatted,
+    startLat: startGeo.lat,
+    startLng: startGeo.lng,
+    endTitle: endGeo.formatted,
+    endLat: endGeo.lat,
+    endLng: endGeo.lng,
+    notes: notes || null,
+    startTime: startTimeStr ? new Date(startTimeStr) : null,
+    endTime: endTimeStr ? new Date(endTimeStr) : null,
+    segmentTypeId,
+  };
+
+  // Handle image logic
+  if (imageUrl && imageUrl !== existingSegment.imageUrl) {
+    // User uploaded new custom image
+    updateData.imageUrl = imageUrl;
+    updateData.imageIsCustom = true;
+  } else if (relevantFieldsChanged && !existingSegment.imageIsCustom) {
+    // Regenerate if not custom image
+    try {
+      const segmentType = await prisma.segmentType.findUnique({
+        where: { id: segmentTypeId },
+      });
+      const result = await generateAndUploadImage(
+        {
+          ...existingSegment,
+          ...updateData,
+          segmentType: segmentType || existingSegment.segmentType,
+        },
+        "segment"
+      );
+      updateData.imageUrl = result.imageUrl;
+      updateData.imageIsCustom = false;
+    } catch (error) {
+      console.error("Segment image regeneration failed:", error);
+      // Keep existing image
+    }
+  } else if (!imageUrl) {
+    updateData.imageUrl = existingSegment.imageUrl;
+  }
+
   await prisma.segment.update({
-    where: { id: segment.id },
-    data: {
-      name,
-      startTitle: startGeo.formatted,
-      startLat: startGeo.lat,
-      startLng: startGeo.lng,
-      endTitle: endGeo.formatted,
-      endLat: endGeo.lat,
-      endLng: endGeo.lng,
-      notes: notes || null,
-      startTime: startTimeStr ? new Date(startTimeStr) : null,
-      endTime: endTimeStr ? new Date(endTimeStr) : null,
-      imageUrl: imageUrl || null,
-      segmentTypeId,
-    },
+    where: { id: existingSegment.id },
+    data: updateData,
   });
 
-  redirect(`/trips/${segment.tripId}`);
+  redirect(`/trips/${existingSegment.tripId}`);
 }

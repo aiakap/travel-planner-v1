@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { generateAndUploadImage } from "@/lib/image-generation";
 
 export async function updateReservation(formData: FormData) {
   const session = await auth();
@@ -52,6 +53,11 @@ export async function updateReservation(formData: FormData) {
           trip: true,
         },
       },
+      reservationType: {
+        include: {
+          category: true,
+        },
+      },
     },
   });
 
@@ -59,27 +65,60 @@ export async function updateReservation(formData: FormData) {
     throw new Error("Reservation not found or unauthorized");
   }
 
+  // Check if relevant fields changed
+  const relevantFieldsChanged =
+    name !== existingReservation.name ||
+    notes !== existingReservation.notes ||
+    location !== existingReservation.location;
+
+  // Prepare update data
+  const updateData: any = {
+    name,
+    confirmationNumber: confirmationNumber || null,
+    notes: notes || null,
+    reservationTypeId,
+    reservationStatusId,
+    startTime: startTime ? new Date(startTime) : null,
+    endTime: endTime ? new Date(endTime) : null,
+    cost: cost ? parseFloat(cost) : null,
+    currency: currency || null,
+    location: location || null,
+    url: url || null,
+    // Flight-specific fields
+    departureLocation: departureLocation || null,
+    departureTimezone: departureTimezone || null,
+    arrivalLocation: arrivalLocation || null,
+    arrivalTimezone: arrivalTimezone || null,
+  };
+
+  // Handle image logic
+  if (imageUrl && imageUrl !== existingReservation.imageUrl) {
+    // User uploaded new custom image
+    updateData.imageUrl = imageUrl;
+    updateData.imageIsCustom = true;
+  } else if (relevantFieldsChanged && !existingReservation.imageIsCustom) {
+    // Regenerate if not custom image
+    try {
+      const result = await generateAndUploadImage(
+        {
+          ...existingReservation,
+          ...updateData,
+        },
+        "reservation"
+      );
+      updateData.imageUrl = result.imageUrl;
+      updateData.imageIsCustom = false;
+    } catch (error) {
+      console.error("Reservation image regeneration failed:", error);
+      // Keep existing image
+    }
+  } else if (!imageUrl) {
+    updateData.imageUrl = existingReservation.imageUrl;
+  }
+
   await prisma.reservation.update({
     where: { id: reservationId },
-    data: {
-      name,
-      confirmationNumber: confirmationNumber || null,
-      notes: notes || null,
-      reservationTypeId,
-      reservationStatusId,
-      startTime: startTime ? new Date(startTime) : null,
-      endTime: endTime ? new Date(endTime) : null,
-      cost: cost ? parseFloat(cost) : null,
-      currency: currency || null,
-      location: location || null,
-      url: url || null,
-      imageUrl: imageUrl || null,
-      // Flight-specific fields
-      departureLocation: departureLocation || null,
-      departureTimezone: departureTimezone || null,
-      arrivalLocation: arrivalLocation || null,
-      arrivalTimezone: arrivalTimezone || null,
-    },
+    data: updateData,
   });
 
   revalidatePath(`/trips/${existingReservation.segment.trip.id}`);

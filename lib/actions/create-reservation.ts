@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { generateAndUploadImage } from "@/lib/image-generation";
 
 export async function createReservation(formData: FormData) {
   const session = await auth();
@@ -53,6 +54,42 @@ export async function createReservation(formData: FormData) {
     throw new Error("Segment not found or unauthorized");
   }
 
+  // Determine if we need to generate an image
+  let finalImageUrl = imageUrl;
+  let imageIsCustom = false;
+
+  // Only generate if user didn't upload an image
+  if (!imageUrl) {
+    try {
+      const reservationType = await prisma.reservationType.findUnique({
+        where: { id: reservationTypeId },
+        include: { category: true },
+      });
+
+      if (reservationType) {
+        const result = await generateAndUploadImage(
+          {
+            name,
+            notes,
+            location,
+            startTime: startTime ? new Date(startTime) : null,
+            endTime: endTime ? new Date(endTime) : null,
+            reservationType,
+            segment,
+          },
+          "reservation"
+        );
+        finalImageUrl = result.imageUrl;
+        imageIsCustom = false;
+      }
+    } catch (error) {
+      console.error("Reservation image generation failed:", error);
+      // Continue without image
+    }
+  } else {
+    imageIsCustom = true;
+  }
+
   const reservation = await prisma.reservation.create({
     data: {
       name,
@@ -67,7 +104,8 @@ export async function createReservation(formData: FormData) {
       currency: currency || null,
       location: location || null,
       url: url || null,
-      imageUrl: imageUrl || null,
+      imageUrl: finalImageUrl || null,
+      imageIsCustom,
       // Flight-specific fields
       departureLocation: departureLocation || null,
       departureTimezone: departureTimezone || null,

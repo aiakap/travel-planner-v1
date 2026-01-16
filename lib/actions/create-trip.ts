@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "../prisma";
 import { redirect } from "next/navigation";
+import { queueTripImageGeneration } from "./queue-image-generation";
 
 export async function createTrip(formData: FormData) {
   const session = await auth();
@@ -23,16 +24,32 @@ export async function createTrip(formData: FormData) {
   const startDate = new Date(startDateStr);
   const endDate = new Date(endDateStr);
 
-  await prisma.trip.create({
+  // Determine image handling
+  const finalImageUrl = imageUrl || null;
+  const imageIsCustom = !!imageUrl;
+
+  // Create trip first
+  const trip = await prisma.trip.create({
     data: {
       title,
       description,
-      imageUrl,
+      imageUrl: finalImageUrl,
+      imageIsCustom,
       startDate,
       endDate,
       userId: session.user.id,
     },
   });
+
+  // Queue image generation if user didn't upload one
+  if (!imageUrl) {
+    try {
+      await queueTripImageGeneration(trip.id);
+    } catch (error) {
+      console.error("Failed to queue image generation:", error);
+      // Don't fail the trip creation if queue fails
+    }
+  }
 
   redirect("/trips");
 }
