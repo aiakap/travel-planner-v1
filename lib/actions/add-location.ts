@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { queueSegmentImageGeneration } from "./queue-image-generation";
 
 async function geocodeAddress(address: string) {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY!;
@@ -56,7 +57,9 @@ export async function addSegment(formData: FormData, tripId: string) {
     where: { tripId },
   });
 
-  await prisma.segment.create({
+  const imageIsCustom = !!imageUrl;
+
+  const segment = await prisma.segment.create({
     data: {
       startTitle: startGeo.formatted,
       startLat: startGeo.lat,
@@ -66,6 +69,7 @@ export async function addSegment(formData: FormData, tripId: string) {
       endLng: endGeo.lng,
       name,
       imageUrl: imageUrl || null,
+      imageIsCustom,
       notes: notes || null,
       startTime: startTimeStr ? new Date(startTimeStr) : null,
       endTime: endTimeStr ? new Date(endTimeStr) : null,
@@ -74,6 +78,16 @@ export async function addSegment(formData: FormData, tripId: string) {
       order: count,
     },
   });
+
+  // Queue image generation if user didn't upload one
+  if (!imageUrl) {
+    try {
+      await queueSegmentImageGeneration(segment.id);
+    } catch (error) {
+      console.error("Failed to queue segment image:", error);
+      // Don't fail the segment creation if queue fails
+    }
+  }
 
   redirect(`/trips/${tripId}`);
 }

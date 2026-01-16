@@ -304,8 +304,10 @@ export async function uploadImageToStorage(
 }
 
 // Helper functions
-function getSeason(date: Date): string {
-  const month = date.getMonth();
+function getSeason(date: Date | null | undefined): string {
+  if (!date) return "Year-round";
+  const actualDate = date instanceof Date ? date : new Date(date);
+  const month = actualDate.getMonth();
   if (month >= 2 && month <= 4) return "Spring";
   if (month >= 5 && month <= 7) return "Summer";
   if (month >= 8 && month <= 10) return "Autumn";
@@ -369,7 +371,8 @@ function calculateDistance(
   return R * c;
 }
 
-function formatDate(date: Date): string {
+function formatDate(date: Date | null | undefined): string {
+  if (!date) return "TBD";
   return new Date(date).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -377,7 +380,8 @@ function formatDate(date: Date): string {
   });
 }
 
-function formatDateTime(date: Date): string {
+function formatDateTime(date: Date | null | undefined): string {
+  if (!date) return "TBD";
   return new Date(date).toLocaleString("en-US", {
     year: "numeric",
     month: "long",
@@ -387,7 +391,8 @@ function formatDateTime(date: Date): string {
   });
 }
 
-function getDurationInDays(startDate: Date, endDate: Date): number {
+function getDurationInDays(startDate: Date | null | undefined, endDate: Date | null | undefined): number {
+  if (!startDate || !endDate) return 0;
   const diff = new Date(endDate).getTime() - new Date(startDate).getTime();
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
