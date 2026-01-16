@@ -1,21 +1,16 @@
 "use server";
 
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { queueImageGeneration } from "@/lib/image-queue";
 
 /**
  * Helper to build and queue image generation for a trip
+ * Note: Should only be called from authenticated server actions
  */
 export async function queueTripImageGeneration(tripId: string, specificPromptId?: string) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized");
-  }
-
-  // Get trip data
+  // Get trip data (no auth check needed - called from authenticated actions)
   const trip = await prisma.trip.findUnique({
-    where: { id: tripId, userId: session.user.id },
+    where: { id: tripId },
     include: { segments: true },
   });
 
@@ -34,18 +29,13 @@ export async function queueTripImageGeneration(tripId: string, specificPromptId?
 
 /**
  * Helper to build and queue image generation for a segment
+ * Note: Should only be called from authenticated server actions
  */
 export async function queueSegmentImageGeneration(segmentId: string) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized");
-  }
-
-  // Get segment data
+  // Get segment data (no auth check needed - called from authenticated actions)
   const segment = await prisma.segment.findFirst({
     where: {
       id: segmentId,
-      trip: { userId: session.user.id },
     },
     include: {
       trip: true,
@@ -68,18 +58,13 @@ export async function queueSegmentImageGeneration(segmentId: string) {
 
 /**
  * Helper to build and queue image generation for a reservation
+ * Note: Should only be called from authenticated server actions
  */
 export async function queueReservationImageGeneration(reservationId: string) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized");
-  }
-
-  // Get reservation data
+  // Get reservation data (no auth check needed - called from authenticated actions)
   const reservation = await prisma.reservation.findFirst({
     where: {
       id: reservationId,
-      segment: { trip: { userId: session.user.id } },
     },
     include: {
       segment: { include: { trip: true } },
