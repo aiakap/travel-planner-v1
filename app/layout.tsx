@@ -1,17 +1,25 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Playfair_Display, Outfit, Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { auth } from "@/auth";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const playfair = Playfair_Display({
+  variable: "--font-display",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const outfit = Outfit({
+  variable: "--font-adventure",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const inter = Inter({
+  variable: "--font-sans",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 /* =======================================================================
@@ -27,8 +35,8 @@ const geistMono = Geist_Mono({
  * "Ctrl+Alt+Dad Trips" - 2024-2026 - Gone but not forgotten
  * ======================================================================= */
 export const metadata: Metadata = {
-  title: "Ctrl+Alt+Dad Trips",
-  description: "AI-powered travel planning personalized to your style",
+  title: "Bespoke | Experiences Crafted for You",
+  description: "Personalized travel experiences curated by experts and shaped by your community",
 };
 
 export default async function RootLayout({
@@ -41,7 +49,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${playfair.variable} ${outfit.variable} ${inter.variable} antialiased`}
       >
         <Navbar session={session} />
         {children}

@@ -47,6 +47,22 @@
   --ring: oklch(0.708 0 0);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
+
+  /* Bespoke Brand Colors - Luxury Palette (Default) */
+  --accent-primary: #0a1628;
+  --accent-secondary: #c9a959;
+  --accent-tertiary: #f5f5f0;
+  --hero-overlay: linear-gradient(to top, rgba(10, 22, 40, 0.85), rgba(10, 22, 40, 0.3), transparent);
+  
+  /* Adventure Palette (Applied via data-persona="adventure") */
+  --accent-adventure-primary: #1a4d3e;
+  --accent-adventure-secondary: #e85d04;
+  --accent-adventure-tertiary: #f4f1ea;
+  
+  /* Typography Scale */
+  --font-display: 'Playfair Display', serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-adventure: 'Outfit', sans-serif;
 }
 
 .dark {
@@ -70,11 +86,34 @@
   --ring: oklch(0.556 0 0);
 }
 
+/* Adventure persona theme overrides */
+[data-persona="adventure"] {
+  --accent-primary: var(--accent-adventure-primary);
+  --accent-secondary: var(--accent-adventure-secondary);
+  --accent-tertiary: var(--accent-adventure-tertiary);
+  --hero-overlay: linear-gradient(to top, rgba(26, 77, 62, 0.85), rgba(26, 77, 62, 0.3), transparent);
+  --font-display: var(--font-adventure);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Smooth transitions for all interactive elements */
+@layer utilities {
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
