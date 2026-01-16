@@ -24,6 +24,12 @@ model User {
   sessions      Session[]
   trips         Trip[]
   conversations ChatConversation[]
+  profile       UserProfile?
+  contacts      UserContact[]
+  hobbies       UserHobby[]
+  relationships UserRelationship[] @relation("UserRelationships")
+  relatedTo     UserRelationship[] @relation("RelatedToUser")
+  travelPreferences UserTravelPreference[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -52,6 +58,7 @@ model Account {
 }
 
 model Session {
+  id           String   @id @default(cuid())
   sessionToken String   @unique
   userId       String
   expires      DateTime
@@ -193,4 +200,150 @@ model ImagePrompt {
   category String // "trip", "segment", "reservation"
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// User Profile Models
+
+model UserProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Personal Info
+  firstName       String?
+  lastName        String?
+  dateOfBirth     DateTime?
+  address         String?
+  city            String?
+  country         String?
+  
+  // Loyalty Programs (stored as JSON for flexibility)
+  loyaltyPrograms Json?   // Array of { program, memberNumber, tier }
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ContactType {
+  id          String        @id @default(cuid())
+  name        String        @unique
+  label       String
+  icon        String?
+  isActive    Boolean       @default(true)
+  sortOrder   Int           @default(0)
+  createdAt   DateTime      @default(now())
+  contacts    UserContact[]
+}
+
+model UserContact {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  contactTypeId String
+  contactType   ContactType @relation(fields: [contactTypeId], references: [id])
+  
+  value         String
+  label         String?     // "Work", "Personal", "Home"
+  isPrimary     Boolean     @default(false)
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  @@index([userId, contactTypeId])
+}
+
+model Hobby {
+  id        String      @id @default(cuid())
+  name      String      @unique
+  category  String?     // "outdoor", "culinary", "arts", "sports", "relaxation"
+  icon      String?
+  isActive  Boolean     @default(true)
+  sortOrder Int         @default(0)
+  createdAt DateTime    @default(now())
+  users     UserHobby[]
+}
+
+model UserHobby {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  hobbyId   String
+  hobby     Hobby    @relation(fields: [hobbyId], references: [id], onDelete: Cascade)
+  
+  level     String?  // "beginner", "intermediate", "advanced", "expert"
+  
+  createdAt DateTime @default(now())
+  
+  @@unique([userId, hobbyId])
+}
+
+model TravelPreferenceType {
+  id                     String                   @id @default(cuid())
+  name                   String                   @unique
+  label                  String
+  description            String?
+  icon                   String?
+  sortOrder              Int                      @default(0)
+  isActive               Boolean                  @default(true)
+  isRequired             Boolean                  @default(false)
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  options                TravelPreferenceOption[]
+  userPreferences        UserTravelPreference[]
+}
+
+model TravelPreferenceOption {
+  id                   String                 @id @default(cuid())
+  preferenceTypeId     String
+  preferenceType       TravelPreferenceType   @relation(fields: [preferenceTypeId], references: [id], onDelete: Cascade)
+  
+  value                String
+  label                String
+  description          String?
+  icon                 String?
+  sortOrder            Int                    @default(0)
+  isActive             Boolean                @default(true)
+  
+  createdAt            DateTime               @default(now())
+  userPreferences      UserTravelPreference[]
+  
+  @@unique([preferenceTypeId, value])
+}
+
+model UserTravelPreference {
+  id                     String                 @id @default(cuid())
+  userId                 String
+  user                   User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  preferenceTypeId       String
+  preferenceType         TravelPreferenceType   @relation(fields: [preferenceTypeId], references: [id])
+  
+  optionId               String
+  option                 TravelPreferenceOption @relation(fields: [optionId], references: [id])
+  
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
+  
+  @@unique([userId, preferenceTypeId])
+}
+
+model UserRelationship {
+  id              String   @id @default(cuid())
+  
+  userId          String
+  user            User     @relation("UserRelationships", fields: [userId], references: [id], onDelete: Cascade)
+  
+  relatedUserId   String
+  relatedUser     User     @relation("RelatedToUser", fields: [relatedUserId], references: [id], onDelete: Cascade)
+  
+  relationshipType String  // "spouse", "partner", "child", "parent", "sibling", "friend", "travel_companion"
+  nickname        String?
+  notes           String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@unique([userId, relatedUserId])
 }

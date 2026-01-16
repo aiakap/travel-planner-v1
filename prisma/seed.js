@@ -199,6 +199,177 @@ async function main() {
   }
   console.log("✓ Image prompts seeded");
 
+  // Seed Contact Types
+  const contactTypes = [
+    { name: "phone", label: "Phone", icon: "phone", sortOrder: 1 },
+    { name: "email", label: "Email", icon: "mail", sortOrder: 2 },
+    { name: "whatsapp", label: "WhatsApp", icon: "message-circle", sortOrder: 3 },
+    { name: "website", label: "Website", icon: "globe", sortOrder: 4 },
+    { name: "instagram", label: "Instagram", icon: "instagram", sortOrder: 5 },
+    { name: "linkedin", label: "LinkedIn", icon: "linkedin", sortOrder: 6 },
+    { name: "twitter", label: "Twitter/X", icon: "twitter", sortOrder: 7 },
+    { name: "facebook", label: "Facebook", icon: "facebook", sortOrder: 8 },
+  ];
+
+  for (const ct of contactTypes) {
+    await prisma.contactType.upsert({
+      where: { name: ct.name },
+      update: ct,
+      create: ct,
+    });
+  }
+  console.log("✓ Contact types seeded");
+
+  // Seed Hobbies
+  const hobbies = [
+    // Outdoor & Adventure
+    { name: "Hiking", category: "outdoor", sortOrder: 1 },
+    { name: "Camping", category: "outdoor", sortOrder: 2 },
+    { name: "Skiing", category: "outdoor", sortOrder: 3 },
+    { name: "Scuba Diving", category: "outdoor", sortOrder: 4 },
+    { name: "Surfing", category: "outdoor", sortOrder: 5 },
+    { name: "Rock Climbing", category: "outdoor", sortOrder: 6 },
+    { name: "Cycling", category: "outdoor", sortOrder: 7 },
+    { name: "Kayaking", category: "outdoor", sortOrder: 8 },
+    { name: "Fishing", category: "outdoor", sortOrder: 9 },
+    
+    // Culinary
+    { name: "Wine Tasting", category: "culinary", sortOrder: 10 },
+    { name: "Cooking Classes", category: "culinary", sortOrder: 11 },
+    { name: "Food Tours", category: "culinary", sortOrder: 12 },
+    { name: "Craft Beer", category: "culinary", sortOrder: 13 },
+    { name: "Street Food", category: "culinary", sortOrder: 14 },
+    
+    // Arts & Culture
+    { name: "Photography", category: "arts", sortOrder: 15 },
+    { name: "Museums", category: "arts", sortOrder: 16 },
+    { name: "Architecture", category: "arts", sortOrder: 17 },
+    { name: "Live Music", category: "arts", sortOrder: 18 },
+    { name: "Theater", category: "arts", sortOrder: 19 },
+    { name: "History", category: "arts", sortOrder: 20 },
+    { name: "Art Galleries", category: "arts", sortOrder: 21 },
+    
+    // Relaxation
+    { name: "Beach", category: "relaxation", sortOrder: 22 },
+    { name: "Spa & Wellness", category: "relaxation", sortOrder: 23 },
+    { name: "Golf", category: "relaxation", sortOrder: 24 },
+    { name: "Yoga", category: "relaxation", sortOrder: 25 },
+    { name: "Meditation", category: "relaxation", sortOrder: 26 },
+    
+    // Sports
+    { name: "Running", category: "sports", sortOrder: 27 },
+    { name: "Tennis", category: "sports", sortOrder: 28 },
+    { name: "Water Sports", category: "sports", sortOrder: 29 },
+    { name: "Swimming", category: "sports", sortOrder: 30 },
+    
+    // Urban & Shopping
+    { name: "Shopping", category: "urban", sortOrder: 31 },
+    { name: "Nightlife", category: "urban", sortOrder: 32 },
+    { name: "Cafes & Coffee", category: "urban", sortOrder: 33 },
+  ];
+
+  for (const hobby of hobbies) {
+    await prisma.hobby.upsert({
+      where: { name: hobby.name },
+      update: hobby,
+      create: hobby,
+    });
+  }
+  console.log("✓ Hobbies seeded");
+
+  // Seed Travel Preference Types and Options
+  const travelPreferences = [
+    {
+      type: {
+        name: "budget_level",
+        label: "Budget Level",
+        description: "What's your typical travel budget preference?",
+        icon: "dollar-sign",
+        sortOrder: 1,
+        isRequired: false,
+      },
+      options: [
+        { value: "budget", label: "Budget", description: "Cost-conscious travel", sortOrder: 1 },
+        { value: "moderate", label: "Moderate", description: "Comfortable without splurging", sortOrder: 2 },
+        { value: "upscale", label: "Upscale", description: "Premium experiences", sortOrder: 3 },
+        { value: "luxury", label: "Luxury", description: "Top-tier experiences", sortOrder: 4 },
+      ],
+    },
+    {
+      type: {
+        name: "activity_level",
+        label: "Activity Level",
+        description: "How active do you like to be when traveling?",
+        icon: "activity",
+        sortOrder: 2,
+        isRequired: false,
+      },
+      options: [
+        { value: "relaxed", label: "Relaxed", description: "Leisure and downtime", sortOrder: 1 },
+        { value: "moderate", label: "Moderate", description: "Mix of activities and rest", sortOrder: 2 },
+        { value: "active", label: "Active", description: "Busy schedule with activities", sortOrder: 3 },
+        { value: "adventurous", label: "Adventurous", description: "High-energy adventures", sortOrder: 4 },
+      ],
+    },
+    {
+      type: {
+        name: "accommodation_preference",
+        label: "Accommodation Preference",
+        description: "What type of accommodation do you prefer?",
+        icon: "home",
+        sortOrder: 3,
+        isRequired: false,
+      },
+      options: [
+        { value: "hostel", label: "Hostel", description: "Social and budget-friendly", sortOrder: 1 },
+        { value: "hotel", label: "Hotel", description: "Traditional hotels", sortOrder: 2 },
+        { value: "vacation_rental", label: "Vacation Rental", description: "Airbnb, VRBO, etc.", sortOrder: 3 },
+        { value: "boutique", label: "Boutique", description: "Unique boutique hotels", sortOrder: 4 },
+        { value: "resort", label: "Resort", description: "All-inclusive resorts", sortOrder: 5 },
+      ],
+    },
+    {
+      type: {
+        name: "pace_preference",
+        label: "Travel Pace",
+        description: "How do you like to pace your trips?",
+        icon: "clock",
+        sortOrder: 4,
+        isRequired: false,
+      },
+      options: [
+        { value: "slow", label: "Slow Travel", description: "Deep dive in fewer places", sortOrder: 1 },
+        { value: "balanced", label: "Balanced", description: "Mix of exploration and rest", sortOrder: 2 },
+        { value: "fast", label: "Fast-Paced", description: "See as much as possible", sortOrder: 3 },
+      ],
+    },
+  ];
+
+  for (const pref of travelPreferences) {
+    const prefType = await prisma.travelPreferenceType.upsert({
+      where: { name: pref.type.name },
+      update: pref.type,
+      create: pref.type,
+    });
+
+    for (const option of pref.options) {
+      await prisma.travelPreferenceOption.upsert({
+        where: {
+          preferenceTypeId_value: {
+            preferenceTypeId: prefType.id,
+            value: option.value,
+          },
+        },
+        update: option,
+        create: {
+          ...option,
+          preferenceTypeId: prefType.id,
+        },
+      });
+    }
+  }
+  console.log("✓ Travel preferences seeded");
+
   console.log("Database seeding completed!");
 }
 
