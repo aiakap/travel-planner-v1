@@ -44,8 +44,12 @@ export default function GlobePage() {
         let totalDistance = 0;
 
         data.forEach((trip) => {
-          trip.countries.forEach((country) => allCountries.add(country));
-          totalDistance += trip.totalDistance;
+          trip.countries?.forEach((country) => {
+            if (country && country.trim()) {
+              allCountries.add(country);
+            }
+          });
+          totalDistance += trip.totalDistance || 0;
         });
 
         setStats({
@@ -75,7 +79,7 @@ export default function GlobePage() {
   };
 
   // Handle globe arc click
-  const handleArcClick = (arc: ArcData) => {
+  const handleArcClick = (arc: any) => {
     router.push(`/globe?trip=${arc.tripId}`);
   };
 
@@ -93,12 +97,12 @@ export default function GlobePage() {
       trips
         .filter((trip) => trip.id === selectedTripId)
         .flatMap((trip) =>
-          trip.segments.map((segment) => ({
+          (trip.segments || []).map((segment) => ({
             startLat: segment.startLat,
             startLng: segment.startLng,
             endLat: segment.endLat,
             endLng: segment.endLng,
-            color: trip.color,
+            color: trip.color || "#3b82f6",
             tripId: trip.id,
             tripTitle: trip.title,
             segmentName: segment.name,
@@ -106,12 +110,12 @@ export default function GlobePage() {
         )
     : // Show all trips
       trips.flatMap((trip) =>
-        trip.segments.map((segment) => ({
+        (trip.segments || []).map((segment) => ({
           startLat: segment.startLat,
           startLng: segment.startLng,
           endLat: segment.endLat,
           endLng: segment.endLng,
-          color: trip.color,
+          color: trip.color || "#3b82f6",
           tripId: trip.id,
           tripTitle: trip.title,
           segmentName: segment.name,

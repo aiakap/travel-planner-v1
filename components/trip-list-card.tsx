@@ -107,7 +107,7 @@ function TripList({
             }`}
             style={{
               borderLeftWidth: "4px",
-              borderLeftColor: isSelected ? trip.color : "transparent",
+              borderLeftColor: isSelected ? (trip.color || "#3b82f6") : "transparent",
             }}
             onClick={() => onTripClick(trip.id)}
           >
@@ -135,8 +135,8 @@ function TripList({
                     <div className="flex items-center gap-1">
                       <MapPin className="h-3 w-3 text-muted-foreground" />
                       <span>
-                        {trip.countries.length}{" "}
-                        {trip.countries.length === 1
+                        {trip.countries?.length || 0}{" "}
+                        {(trip.countries?.length || 0) === 1
                           ? "country"
                           : "countries"}
                       </span>
@@ -144,35 +144,37 @@ function TripList({
                     <div className="flex items-center gap-1">
                       <Route className="h-3 w-3 text-muted-foreground" />
                       <span>
-                        {trip.segments.length}{" "}
-                        {trip.segments.length === 1
+                        {trip.segments?.length || 0}{" "}
+                        {(trip.segments?.length || 0) === 1
                           ? "segment"
                           : "segments"}
                       </span>
                     </div>
                   </div>
                   {/* Country badges */}
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {trip.countries.slice(0, 3).map((country) => (
-                      <Badge
-                        key={country}
-                        variant="secondary"
-                        className="text-xs"
-                      >
-                        {country}
-                      </Badge>
-                    ))}
-                    {trip.countries.length > 3 && (
-                      <Badge variant="secondary" className="text-xs">
-                        +{trip.countries.length - 3}
-                      </Badge>
-                    )}
-                  </div>
+                  {trip.countries && trip.countries.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {trip.countries.slice(0, 3).map((country) => (
+                        <Badge
+                          key={country}
+                          variant="secondary"
+                          className="text-xs"
+                        >
+                          {country}
+                        </Badge>
+                      ))}
+                      {trip.countries.length > 3 && (
+                        <Badge variant="secondary" className="text-xs">
+                          +{trip.countries.length - 3}
+                        </Badge>
+                      )}
+                    </div>
+                  )}
                 </div>
                 {isSelected && (
                   <div
                     className="w-3 h-3 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: trip.color }}
+                    style={{ backgroundColor: trip.color || "#3b82f6" }}
                     title="Selected on globe"
                   />
                 )}

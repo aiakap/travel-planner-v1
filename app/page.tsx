@@ -89,8 +89,8 @@ export default async function HomePage() {
     trip.segments.forEach((segment) => {
       // Extract country from location titles
       // This is a simple approach - you might want to enhance this
-      const startCountry = segment.startTitle.split(",").pop()?.trim();
-      const endCountry = segment.endTitle.split(",").pop()?.trim();
+      const startCountry = segment.startTitle?.split(",").pop()?.trim();
+      const endCountry = segment.endTitle?.split(",").pop()?.trim();
       if (startCountry) countriesVisited.add(startCountry);
       if (endCountry) countriesVisited.add(endCountry);
     });

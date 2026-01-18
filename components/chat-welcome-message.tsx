@@ -15,7 +15,7 @@ export function ChatWelcomeMessage({
   const hasRecentTrips = recentTrips.length > 0;
 
   return (
-    <div className="max-w-2xl mx-auto py-12">
+    <div className="max-w-2xl mx-auto py-4">
       <h2 className="text-3xl font-light text-slate-900 mb-4">
         {userName ? `Hello, ${userName}` : 'Hello'}
       </h2>
@@ -42,7 +42,7 @@ export function ChatWelcomeMessage({
         )}
       </div>
 
-      <div className="mt-8 pt-6 border-t border-slate-200">
+      <div className="mt-6 pt-4 border-t border-slate-200">
         <p className="text-sm text-slate-400 mb-3">Examples</p>
         <div className="space-y-2 text-sm text-slate-500">
           <div>"Plan a week-long trip to Japan"</div>

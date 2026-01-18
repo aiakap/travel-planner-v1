@@ -36,7 +36,7 @@ export function TripInfoBar({ trip }: TripInfoBarProps) {
           <Globe className="h-5 w-5 text-muted-foreground" />
           <div>
             <div className="text-sm text-muted-foreground">Countries</div>
-            <div className="font-medium">{trip.countries.length}</div>
+            <div className="font-medium">{trip.countries?.length || 0}</div>
           </div>
         </div>
 
@@ -45,7 +45,7 @@ export function TripInfoBar({ trip }: TripInfoBarProps) {
           <Route className="h-5 w-5 text-muted-foreground" />
           <div>
             <div className="text-sm text-muted-foreground">Segments</div>
-            <div className="font-medium">{trip.segments.length}</div>
+            <div className="font-medium">{trip.segments?.length || 0}</div>
           </div>
         </div>
 
@@ -55,7 +55,7 @@ export function TripInfoBar({ trip }: TripInfoBarProps) {
           <div>
             <div className="text-sm text-muted-foreground">Distance</div>
             <div className="font-medium">
-              {formatDistance(trip.totalDistance)} km
+              {formatDistance(trip.totalDistance || 0)} km
             </div>
           </div>
         </div>

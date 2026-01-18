@@ -80,7 +80,7 @@ export function HobbiesSection({ initialHobbies, availableHobbies }: HobbiesSect
               {categoryLabels[category] || category}
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {hobbies.map((hobby: any) => {
+              {(hobbies as any[]).map((hobby: any) => {
                 const isSelected = selectedHobbyIds.has(hobby.id);
                 return (
                   <label

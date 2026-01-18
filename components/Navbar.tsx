@@ -37,6 +37,12 @@ export default function Navbar({ session }: NavbarProps) {
                 AI Chat
               </Link>
               <Link
+                href={"/experience-builder"}
+                className="text-sm font-medium text-slate-700 hover:text-slate-900 transition-smooth"
+              >
+                Experience Builder
+              </Link>
+              <Link
                 href={"/manage"}
                 className="text-sm font-medium text-slate-700 hover:text-slate-900 transition-smooth"
               >

@@ -26,7 +26,7 @@ export default async function ConversationPage({
 
   // Load user profile data for personalization
   let profileData = null;
-  let quickActions = [];
+  let quickActions: any[] = [];
   try {
     profileData = await getUserPersonalizationData(session.user.id);
     quickActions = generateChatQuickActions(profileData);
@@ -37,9 +37,10 @@ export default async function ConversationPage({
   // Convert messages to format expected by useChat
   const initialMessages = conversation.messages.map((msg) => ({
     id: msg.id,
-    role: msg.role,
+    role: msg.role as "user" | "assistant" | "system",
     content: msg.content,
     createdAt: msg.createdAt,
+    parts: [{ type: "text" as const, text: msg.content }],
   }));
 
   return (

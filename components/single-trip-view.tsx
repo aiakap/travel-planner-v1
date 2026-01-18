@@ -19,10 +19,10 @@ export function SingleTripView({ trip, onBack }: SingleTripViewProps) {
 
   // Find selected segment and reservation for breadcrumb
   const selectedSegment = selectedSegmentId
-    ? trip.segments.find((s) => s.id === selectedSegmentId)
+    ? trip.segments?.find((s) => s.id === selectedSegmentId)
     : null;
   const selectedReservation = selectedSegment && selectedReservationId
-    ? selectedSegment.reservations.find((r) => r.id === selectedReservationId)
+    ? selectedSegment.reservations?.find((r) => r.id === selectedReservationId)
     : null;
 
   const handleSegmentClick = (segmentId: string) => {
