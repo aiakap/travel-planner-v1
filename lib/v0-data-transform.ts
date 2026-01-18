@@ -83,7 +83,7 @@ function formatTripDates(startDate: Date, endDate: Date): string {
  * Transform a segment to V0 format
  */
 function transformSegment(segment: DBSegment, segmentIndex: number, tripStartDate: Date): V0Segment {
-  const segmentType = segment.segmentType.name.toLowerCase() === "travel" ? "travel" : "destination"
+  const segmentType = segment.segmentType?.name?.toLowerCase() === "travel" ? "travel" : "destination"
   
   const days = calculateSegmentDays(segment, tripStartDate)
   
@@ -148,8 +148,8 @@ function calculateSegmentDays(segment: DBSegment, tripStartDate: Date): V0Day[] 
  * Transform a reservation to a V0 item
  */
 function transformReservationToItem(reservation: DBReservation, index: number): V0Item {
-  const categoryName = reservation.reservationType.category.name.toLowerCase()
-  const typeName = reservation.reservationType.name.toLowerCase()
+  const categoryName = reservation.reservationType?.category?.name?.toLowerCase() || "other"
+  const typeName = reservation.reservationType?.name?.toLowerCase() || "other"
   
   return {
     id: index + 1,
@@ -177,7 +177,7 @@ function transformReservation(res: DBReservation): V0Reservation {
     id: Math.floor(Math.random() * 100000), // Convert string ID to number for V0
     vendor: res.name,
     text: res.notes || deriveReservationText(res),
-    status: mapReservationStatus(res.reservationStatus.name),
+    status: mapReservationStatus(res.reservationStatus?.name || "Confirmed"),
     confirmationNumber: res.confirmationNumber || undefined,
     contactPhone: res.contactPhone || undefined,
     contactEmail: res.contactEmail || undefined,
@@ -236,7 +236,7 @@ function deriveReservationText(res: DBReservation): string {
     parts.push(`${res.departureLocation} → ${res.arrivalLocation}`)
   }
   
-  if (res.reservationType.name) {
+  if (res.reservationType?.name) {
     parts.push(res.reservationType.name)
   }
   
