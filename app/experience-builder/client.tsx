@@ -397,13 +397,15 @@ What would you like to change about this plan, or should I create it as is?`;
           </div>
         ) : (
           <div className="flex flex-col h-full">
+            {/* Trip Selector - Always visible at top */}
+            <div className="border-b border-slate-200 p-3 bg-white">
+              <TripSelector trips={trips} selectedTripId={selectedTripId} onTripSelect={handleTripSelect} />
+            </div>
+            
             {!hasStartedPlanning && !selectedTripId ? (
               <ItineraryEmptyState />
             ) : (
               <>
-                <div className="border-b border-slate-200 p-3 bg-white space-y-3">
-                  <TripSelector trips={trips} selectedTripId={selectedTripId} onTripSelect={handleTripSelect} />
-                </div>
                 {transformedTrip && (
                   <>
                     <div className="border-b p-3 bg-card">
@@ -549,16 +551,19 @@ What would you like to change about this plan, or should I create it as is?`;
 
         {/* Right Panel - Itinerary */}
         <div className="flex flex-col h-full bg-white" style={{ width: `${100 - leftPanelWidth}%` }}>
+          {/* Trip Selector - Always visible at top */}
+          <div className="border-b border-slate-200 p-3 bg-white">
+            <TripSelector trips={trips} selectedTripId={selectedTripId} onTripSelect={handleTripSelect} />
+          </div>
+          
           {!hasStartedPlanning && !selectedTripId ? (
             <ItineraryEmptyState />
           ) : (
             <>
-              <div className="border-b border-slate-200 p-3 bg-white">
-                <div className="flex items-center justify-between mb-3">
-                  <TripSelector trips={trips} selectedTripId={selectedTripId} onTripSelect={handleTripSelect} />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
+              {transformedTrip && (
+                <div className="border-b border-slate-200 p-3 bg-white">
+                  <div className="flex items-center justify-between">
+                    <div>
                     <h1 className="text-sm font-bold">{transformedTrip?.title || "Select a trip"}</h1>
                     <p className="text-[10px] text-muted-foreground">{transformedTrip?.dates || ""}</p>
                   </div>
