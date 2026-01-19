@@ -401,11 +401,9 @@ What would you like to change about this plan, or should I create it as is?`;
               <ItineraryEmptyState />
             ) : (
               <>
-                {selectedTripId && (
-                  <div className="border-b border-slate-200 p-3 bg-white space-y-3">
-                    <TripSelector trips={trips} selectedTripId={selectedTripId} onTripSelect={handleTripSelect} />
-                  </div>
-                )}
+                <div className="border-b border-slate-200 p-3 bg-white space-y-3">
+                  <TripSelector trips={trips} selectedTripId={selectedTripId} onTripSelect={handleTripSelect} />
+                </div>
                 {transformedTrip && (
                   <>
                     <div className="border-b p-3 bg-card">
@@ -556,11 +554,9 @@ What would you like to change about this plan, or should I create it as is?`;
           ) : (
             <>
               <div className="border-b border-slate-200 p-3 bg-white">
-                {selectedTripId && (
-                  <div className="flex items-center justify-between mb-3">
-                    <TripSelector trips={trips} selectedTripId={selectedTripId} onTripSelect={handleTripSelect} />
-                  </div>
-                )}
+                <div className="flex items-center justify-between mb-3">
+                  <TripSelector trips={trips} selectedTripId={selectedTripId} onTripSelect={handleTripSelect} />
+                </div>
                 <div className="flex items-center justify-between">
                   <div>
                     <h1 className="text-sm font-bold">{transformedTrip?.title || "Select a trip"}</h1>
