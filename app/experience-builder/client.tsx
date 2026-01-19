@@ -564,9 +564,9 @@ What would you like to change about this plan, or should I create it as is?`;
                 <div className="border-b border-slate-200 p-3 bg-white">
                   <div className="flex items-center justify-between">
                     <div>
-                    <h1 className="text-sm font-bold">{transformedTrip?.title || "Select a trip"}</h1>
-                    <p className="text-[10px] text-muted-foreground">{transformedTrip?.dates || ""}</p>
-                  </div>
+                      <h1 className="text-sm font-bold">{transformedTrip?.title || "Select a trip"}</h1>
+                      <p className="text-[10px] text-muted-foreground">{transformedTrip?.dates || ""}</p>
+                    </div>
                   <div className="flex items-center gap-3">
                     {transformedTrip && (
                       <div className="text-right">
